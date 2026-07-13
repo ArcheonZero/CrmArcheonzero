@@ -18,7 +18,7 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Column="0" 
-                       Text="CRM Arkheonzero" 
+                       Text="CRM Archeonzero" 
                        FontSize="20" 
                        FontWeight="SemiBold" 
                        Foreground="{StaticResource AccentDeepBlue}" 
