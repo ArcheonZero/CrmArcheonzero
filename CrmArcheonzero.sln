@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrmArcheonzero", "CrmArcheonzero\CrmArcheonzero.csproj", "{6A0C0B3F-FA36-4E9A-956A-2F561443CDE7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrmArcheonzero.Tests", "CrmArcheonzero.Tests\CrmArcheonzero.Tests.csproj", "{68CC3E63-5237-4CD7-A042-D5AC60A19E3B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6A0C0B3F-FA36-4E9A-956A-2F561443CDE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A0C0B3F-FA36-4E9A-956A-2F561443CDE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A0C0B3F-FA36-4E9A-956A-2F561443CDE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A0C0B3F-FA36-4E9A-956A-2F561443CDE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68CC3E63-5237-4CD7-A042-D5AC60A19E3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68CC3E63-5237-4CD7-A042-D5AC60A19E3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68CC3E63-5237-4CD7-A042-D5AC60A19E3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68CC3E63-5237-4CD7-A042-D5AC60A19E3B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {64A1A9DF-1B44-4F5B-B0AF-244CA09E9707}
+	EndGlobalSection
+EndGlobal

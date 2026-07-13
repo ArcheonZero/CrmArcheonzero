@@ -1,0 +1,261 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ========================================== -->
+    <!-- БАЗОВЫЕ ЦВЕТА И КИСТИ -->
+    <!-- ========================================== -->
+    <SolidColorBrush x:Key="AccentGold" Color="#C9A04E"/>
+    <SolidColorBrush x:Key="AccentDeepBlue" Color="#4A6BB5"/>
+    <SolidColorBrush x:Key="BackgroundLight" Color="#F5F7FA"/>
+    <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="TextDark" Color="#1E1E2A"/>
+    <SolidColorBrush x:Key="TextMuted" Color="#5A5A6E"/>
+    <SolidColorBrush x:Key="BorderLight" Color="#E0E4EA"/>
+    <SolidColorBrush x:Key="DangerRed" Color="#D32F2F"/>
+    <SolidColorBrush x:Key="WarningOrange" Color="#E85D3A"/>
+
+    <!-- ДОПОЛНИТЕЛЬНЫЕ ЦВЕТА -->
+    <SolidColorBrush x:Key="SoftBackground" Color="#F9FAFB"/>
+    <SolidColorBrush x:Key="CardShadow" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="InputBackground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="BorderSoft" Color="#D1D5DB"/>
+
+    <!-- ЭФФЕКТ ТЕНИ -->
+    <DropShadowEffect x:Key="ShadowEffect" BlurRadius="10" ShadowDepth="2" Opacity="0.08"/>
+
+    <!-- ========================================== -->
+    <!-- СТИЛИ ДЛЯ ТЕКСТА -->
+    <!-- ========================================== -->
+    <Style TargetType="TextBlock" x:Key="LabelText">
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+        <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="SectionHeader">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource AccentDeepBlue}"/>
+        <Setter Property="Margin" Value="0,0,0,10"/>
+    </Style>
+
+    <!-- ========================================== -->
+    <!-- СТИЛИ ДЛЯ ПОЛЕЙ ВВОДА -->
+    <!-- ========================================== -->
+    <Style TargetType="TextBox">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="6"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>        
+    </Style>
+    <!-- ========================================== -->
+    <!-- СТИЛЬ КНОПОК ПО УМОЛЧАНИЮ (без ключа) -->
+    <!-- ========================================== -->
+    <Style TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource AccentDeepBlue}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Padding" Value="14,8"/>
+        <Setter Property="Margin" Value="4"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" 
+                        CornerRadius="8" 
+                        Padding="{TemplateBinding Padding}"
+                        Effect="{StaticResource ShadowEffect}">
+                        <ContentPresenter HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#3A5EAA"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="#1A3E7E"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" Value="#B0B0B0"/>
+                            <Setter Property="Foreground" Value="#E0E0E0"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ========================================== -->
+    <!-- КЛЮЧЕВЫЕ СТИЛИ КНОПОК -->
+    <!-- ========================================== -->
+
+    <!-- AccentButton — синяя, белый текст -->
+    <Style TargetType="Button" x:Key="AccentButton" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Background" Value="{StaticResource AccentDeepBlue}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="Margin" Value="3"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <!-- SuccessButton — зелёная, белый текст -->
+    <Style TargetType="Button" x:Key="SuccessButton" BasedOn="{StaticResource AccentButton}">
+        <Setter Property="Background" Value="#4CAF50"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+
+    <!-- DangerButton — красная, белый текст -->
+    <Style TargetType="Button" x:Key="DangerButton" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Background" Value="{StaticResource DangerRed}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="Margin" Value="10,0"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#B71C1C"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#880E4F"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#E0A0A0"/>
+                <Setter Property="Foreground" Value="#F0D0D0"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- LoginButton — оранжевая, БЕЛЫЙ текст -->
+    <Style TargetType="Button" x:Key="LoginButton" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Background" Value="{StaticResource WarningOrange}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="Margin" Value="10,0"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#E65100"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#BF360C"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="#E0A060"/>
+                <Setter Property="Foreground" Value="#F0D0C0"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- FlatButton — прозрачная, ТЁМНО-СИНИЙ текст -->
+    <Style TargetType="Button" x:Key="FlatButton" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextDark}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource AccentDeepBlue}"/>
+                <Setter Property="Background" Value="#E8EDF4"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource AccentDeepBlue}"/>
+                <Setter Property="Background" Value="#D0D8E8"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="#C0C0C0"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ========================================== -->
+    <!-- СТИЛИ ДЛЯ ВКЛАДОК -->
+    <!-- ========================================== -->
+    <Style TargetType="TabControl">
+        <Setter Property="Background" Value="{StaticResource BackgroundLight}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style TargetType="TabItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Border Background="{TemplateBinding Background}"
+                        CornerRadius="8"
+                        Padding="{TemplateBinding Padding}"
+                        Margin="2">
+                        <ContentPresenter ContentSource="Header" 
+                                      HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{StaticResource AccentDeepBlue}"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource AccentDeepBlue}"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ========================================== -->
+    <!-- СТИЛИ ДЛЯ DATAGRID -->
+    <!-- ========================================== -->
+    <Style TargetType="DataGrid">
+        <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextDark}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderSoft}"/>
+        <Setter Property="GridLinesVisibility" Value="None"/>
+        <Setter Property="RowBackground" Value="{StaticResource CardBackground}"/>
+        <Setter Property="AlternatingRowBackground" Value="#F8F9FA"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+    </Style>
+
+    <Style TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="#F1F3F5"/>
+        <Setter Property="Foreground" Value="{StaticResource AccentDeepBlue}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="8"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    </Style>
+
+    <Style TargetType="DataGridRow">
+        <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#F1F5F9"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="#E8EDF5"/>
+                <Setter Property="Foreground" Value="{StaticResource TextDark}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

@@ -1,0 +1,566 @@
+<Window x:Class="CrmArcheonzero.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        xmlns:views="clr-namespace:CrmArcheonzero.Views"
+        xmlns:controls="clr-namespace:CrmArcheonzero.Views.Controls"
+        xmlns:vm="clr-namespace:CrmArcheonzero.ViewModels"
+        Title="CRM Archeonzero v2.0.1" 
+        Height="800" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        Background="#F9FAFB"
+        Foreground="#1E1E2A"
+        WindowState="Maximized">
+
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+        <controls:TopPanelView Grid.Row="0" Loaded="TopPanelView_Loaded"/>
+
+        <!-- ВКЛАДКИ -->
+        <TabControl Grid.Row="1" 
+                    Background="{StaticResource BackgroundLight}" 
+                    BorderThickness="0"
+                    SelectedIndex="{Binding SelectedTabIndex}">
+
+            <!-- КЛИЕНТЫ -->
+            <TabItem Header="👥 Клиенты">
+                <Border CornerRadius="12" BorderBrush="{StaticResource BorderSoft}" BorderThickness="1" Padding="10" Background="{StaticResource CardBackground}">
+                    <Grid Margin="0,0,0,10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <TextBlock Text="🔍 Поиск:" VerticalAlignment="Center" Margin="5" Foreground="{StaticResource TextMuted}"/>
+                                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                                     Width="200" Margin="5" Padding="5"/>
+                                <TextBlock Text="📌 Статус:" VerticalAlignment="Center" Margin="15,5,5,5" Foreground="{StaticResource TextMuted}"/>
+                                <ComboBox ItemsSource="{Binding Statuses}" 
+                                      SelectedItem="{Binding StatusFilter}" 
+                                      Width="120" Margin="5"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Content="🔄 Обновить" Command="{Binding RefreshCommand}" 
+                                    Margin="5" Padding="12,6" Style="{StaticResource AccentButton}"/>
+                                <Button Content="➕ Новый клиент" Command="{Binding AddCommand}" 
+                                    Margin="5" Padding="12,6" Style="{StaticResource AccentButton}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <DataGrid Grid.Row="1" 
+                              ItemsSource="{Binding Clients}" 
+                              SelectedItem="{Binding SelectedClient}"
+                              AutoGenerateColumns="False" 
+                              IsReadOnly="True"
+                              Margin="0,10,0,0"
+                              VirtualizingPanel.ScrollUnit="Pixel"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                                <DataGridTextColumn Header="Имя" Binding="{Binding Name}" Width="150" FontWeight="SemiBold"/>
+                                <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="120"/>
+                                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="180"/>
+                                <DataGridTextColumn Header="Компания" Binding="{Binding Company}" Width="150"/>
+                                <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="100"/>
+                                <DataGridTextColumn Header="Создан" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy}" Width="100"/>
+                                <DataGridTextColumn Header="Ответственный" Binding="{Binding AssignedUser.FullName}" Width="120"/>
+                                <DataGridTextColumn Header="Источник" Binding="{Binding Source}" Width="100"/>
+                                <DataGridTextColumn Header="Тэги" Binding="{Binding Tags}" Width="100"/>
+                                <DataGridTextColumn Header="ДР" Binding="{Binding Birthday, StringFormat=dd.MM.yyyy}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </TabItem>
+
+            <!-- ДАШБОРД -->
+            <TabItem Header="📊 Дашборд">
+                <ScrollViewer>
+                    <StackPanel Margin="10">
+                        <WrapPanel>
+                            <Border Background="#E3F2FD" Padding="20" Margin="5" CornerRadius="6" Width="150">
+                                <StackPanel>
+                                    <TextBlock Text="Всего" FontSize="14" Foreground="#666"/>
+                                    <TextBlock Text="{Binding Clients.Count, FallbackValue=0}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource AccentDeepBlue}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#C8E6C9" Padding="20" Margin="5" CornerRadius="6" Width="150">
+                                <StackPanel>
+                                    <TextBlock Text="Active" FontSize="14" Foreground="#666"/>
+                                    <TextBlock Text="0" FontSize="28" FontWeight="Bold" Foreground="#2E7D32"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#FFE0B2" Padding="20" Margin="5" CornerRadius="6" Width="150">
+                                <StackPanel>
+                                    <TextBlock Text="Lead" FontSize="14" Foreground="#666"/>
+                                    <TextBlock Text="0" FontSize="28" FontWeight="Bold" Foreground="#E65100"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#FFCDD2" Padding="20" Margin="5" CornerRadius="6" Width="150">
+                                <StackPanel>
+                                    <TextBlock Text="Inactive" FontSize="14" Foreground="#666"/>
+                                    <TextBlock Text="0" FontSize="28" FontWeight="Bold" Foreground="#C62828"/>
+                                </StackPanel>
+                            </Border>
+                        </WrapPanel>
+
+                        <Border Background="{StaticResource CardBackground}" Padding="20" Margin="5" CornerRadius="6" 
+                                BorderBrush="{StaticResource BorderSoft}" BorderThickness="1">
+                            <lvc:CartesianChart Series="{Binding ChartSeries}" 
+                                                LegendLocation="Right" 
+                                                Height="300">
+                                <lvc:CartesianChart.AxisX>
+                                    <lvc:Axis Labels="{Binding ChartLabels}" FontSize="14"/>
+                                </lvc:CartesianChart.AxisX>
+                                <lvc:CartesianChart.AxisY>
+                                    <lvc:Axis LabelFormatter="{Binding ChartFormatter}" FontSize="14"/>
+                                </lvc:CartesianChart.AxisY>
+                            </lvc:CartesianChart>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ДЕТАЛИ -->
+            <TabItem Header="📋 Детали">
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="441*"/>
+                        <ColumnDefinition Width="205*"/>
+                        <ColumnDefinition Width="215*"/>
+                        <ColumnDefinition Width="150*"/>
+                        <ColumnDefinition Width="181*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                               Text="{Binding SelectedClient.Name, StringFormat='Детали клиента: {0}'}" 
+                               FontSize="18" FontWeight="SemiBold" 
+                               Foreground="{StaticResource AccentDeepBlue}"
+                               Margin="0,0,0,10" Grid.ColumnSpan="5"/>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="5">
+                        <StackPanel>
+                            <!-- ФОРМА РЕДАКТИРОВАНИЯ -->
+                            <Border Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibility}}"
+                                    BorderBrush="{StaticResource BorderSoft}" 
+                                    BorderThickness="1" 
+                                    Padding="10" 
+                                    Margin="0,0,0,10" 
+                                    Background="{StaticResource CardBackground}" 
+                                    CornerRadius="8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <WrapPanel Grid.Column="0">
+                                        <StackPanel Margin="5">
+                                            <TextBlock Text="Имя:" Style="{StaticResource LabelText}"/>
+                                            <TextBox Text="{Binding EditableClient.Name}" Width="150"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="5">
+                                            <TextBlock Text="Телефон:" Style="{StaticResource LabelText}"/>
+                                            <TextBox Text="{Binding EditableClient.Phone}" Width="120"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="5">
+                                            <TextBlock Text="Email:" Style="{StaticResource LabelText}"/>
+                                            <TextBox Text="{Binding EditableClient.Email}" Width="160"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="5">
+                                            <TextBlock Text="Компания:" Style="{StaticResource LabelText}"/>
+                                            <TextBox Text="{Binding EditableClient.Company}" Width="130"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="5">
+                                            <TextBlock Text="Статус:" Style="{StaticResource LabelText}"/>
+                                            <ComboBox ItemsSource="{Binding Statuses}" 
+                                                      SelectedItem="{Binding EditableClient.Status}" 
+                                                      Width="100"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="5">
+                                            <TextBlock Text="Дата рождения:" Style="{StaticResource LabelText}"/>
+                                            <DatePicker SelectedDate="{Binding EditableClient.Birthday}" Width="150"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="5">
+                                            <TextBlock Text="Ответственный:" Style="{StaticResource LabelText}"/>
+                                            <ComboBox ItemsSource="{Binding Users}" 
+                                                      DisplayMemberPath="FullName" 
+                                                      SelectedValuePath="Id" 
+                                                      SelectedValue="{Binding EditableClient.AssignedUserId}"
+                                                      Width="150"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="5">
+                                            <TextBlock Text="Источник:" Style="{StaticResource LabelText}"/>
+                                            <TextBox Text="{Binding EditableClient.Source}" Width="120"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="5">
+                                            <TextBlock Text="Тэги:" Style="{StaticResource LabelText}"/>
+                                            <TextBox Text="{Binding EditableClient.Tags}" Width="120"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="5">
+                                            <TextBlock Text="Примечания:" Style="{StaticResource LabelText}"/>
+                                            <TextBox Text="{Binding EditableClient.Notes}" Width="150"/>
+                                        </StackPanel>
+                                    </WrapPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Vertical">
+                                        <Button Content="💾 Сохранить" Command="{Binding SaveCommand}" 
+                                                Margin="5" Padding="15,8" Style="{StaticResource AccentButton}"/>
+                                        <Button Content="🗑 Удалить" Command="{Binding DeleteCommand}" 
+                                                Margin="5" Padding="15,8" Style="{StaticResource DangerButton}"/>
+                                        <Button Content="✖ Сбросить" Command="{Binding ClearCommand}" 
+                                                Margin="5" Padding="15,8" Style="{StaticResource FlatButton}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- ЗАДАЧИ -->
+                            <Border BorderBrush="{StaticResource BorderSoft}" BorderThickness="1" Padding="10" Margin="0,0,0,10" Background="{StaticResource CardBackground}" CornerRadius="8">
+                                <StackPanel>
+                                    <TextBlock Text="✅ Задачи" Style="{StaticResource SectionHeader}"/>
+                                    <ListView ItemsSource="{Binding Tasks}" MaxHeight="150"
+                                              VirtualizingPanel.IsVirtualizing="True"
+                                              VirtualizingPanel.VirtualizationMode="Recycling">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="0,5">
+                                                    <CheckBox IsChecked="{Binding IsCompleted}" 
+                                                              Command="{Binding DataContext.CompleteTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                                              CommandParameter="{Binding}" Margin="0,0,10,0"/>
+                                                    <TextBlock Text="{Binding Title}" 
+                                                               TextDecorations="{Binding IsCompleted, Converter={StaticResource BooleanToStrikethrough}}" 
+                                                               Foreground="{StaticResource TextDark}"/>
+                                                    <TextBlock Text="{Binding DueDate, StringFormat=dd.MM}" Margin="10,0" Foreground="{StaticResource TextMuted}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                        <TextBox Text="{Binding NewTaskTitle}" Width="200" Margin="0,0,5,0" 
+                                                 IsEnabled="{Binding IsAuthenticated}"/>
+                                        <Button Content="➕ Добавить" Command="{Binding AddTaskCommand}" 
+                                                Margin="5" Padding="10,5" Style="{StaticResource AccentButton}"
+                                                IsEnabled="{Binding IsAuthenticated}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- ЗАМЕТКИ -->
+                            <Border BorderBrush="{StaticResource BorderSoft}" BorderThickness="1" Padding="10" Margin="0,0,0,10" Background="{StaticResource CardBackground}" CornerRadius="8">
+                                <StackPanel>
+                                    <TextBlock Text="📝 Заметки" Style="{StaticResource SectionHeader}"/>
+                                    <ListView ItemsSource="{Binding Notes}" MaxHeight="150"
+                                              VirtualizingPanel.IsVirtualizing="True"
+                                              VirtualizingPanel.VirtualizationMode="Recycling">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="0,5">
+                                                    <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Foreground="{StaticResource TextDark}"/>
+                                                    <TextBlock Text="{Binding CreatedAt, StringFormat=dd.MM.yyyy HH:mm}" 
+                                                               FontSize="11" Foreground="{StaticResource TextMuted}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                        <TextBox Text="{Binding NewNoteText}" Width="250" Margin="0,0,5,0" 
+                                                 IsEnabled="{Binding IsAuthenticated}"/>
+                                        <Button Content="➕ Добавить" Command="{Binding AddNoteCommand}" 
+                                                Margin="5" Padding="10,5" Style="{StaticResource AccentButton}"
+                                                IsEnabled="{Binding IsAuthenticated}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- ВЗАИМОДЕЙСТВИЯ -->
+                            <Border BorderBrush="{StaticResource BorderSoft}" BorderThickness="1" Padding="10" Margin="0,0,0,10" Background="{StaticResource CardBackground}" CornerRadius="8">
+                                <StackPanel>
+                                    <TextBlock Text="📞 Взаимодействия" Style="{StaticResource SectionHeader}"/>
+                                    <ListView ItemsSource="{Binding Interactions}" MaxHeight="150">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="0,5">
+                                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Foreground="{StaticResource TextDark}"/>
+                                                    <TextBlock>
+                                                        <Run Text="{Binding Date, StringFormat=dd.MM.yyyy HH:mm}" Foreground="{StaticResource TextMuted}"/>
+                                                        <Run Text=" - " Foreground="{StaticResource TextMuted}"/>
+                                                        <Run Text="{Binding Type}" Foreground="{StaticResource TextMuted}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                        <TextBox Text="{Binding NewInteractionDesc}" Width="200" Margin="0,0,5,0" 
+                                                 IsEnabled="{Binding IsAuthenticated}"/>
+                                        <Button Content="➕ Добавить" Command="{Binding AddInteractionCommand}" 
+                                                Margin="5" Padding="10,5" Style="{StaticResource AccentButton}"
+                                                IsEnabled="{Binding IsAuthenticated}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="" 
+                     IsEnabled="False" 
+                     Width="300" 
+                     Visibility="{Binding UsersTabVisible, Converter={StaticResource BoolToVisibility}}"/>
+
+            <!-- ПОЛЬЗОВАТЕЛИ -->
+            <TabItem Header="👤 Пользователи" 
+         Visibility="{Binding UsersTabVisible, Converter={StaticResource BoolToVisibility}}">
+
+                <Border CornerRadius="12" BorderBrush="{StaticResource BorderSoft}" BorderThickness="1" Padding="10" Background="{StaticResource CardBackground}">
+                    <Grid Margin="0,0,0,10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" 
+                               Text="👤 Пользователи" 
+                               Style="{StaticResource SectionHeader}"
+                               Margin="0,0,0,10"/>
+
+                        <!-- ТАБЛИЦА -->
+                        <DataGrid Grid.Row="1" 
+                              ItemsSource="{Binding Users}" 
+                              SelectedItem="{Binding SelectedUser, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              AutoGenerateColumns="False" 
+                              IsReadOnly="True"
+                              Margin="0,0,0,10">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                                <DataGridTextColumn Header="Логин" Binding="{Binding Username}" Width="150" FontWeight="Bold"/>
+                                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="180"/>
+                                <DataGridTextColumn Header="Полное имя" Binding="{Binding FullName}" Width="150"/>
+                                <DataGridTextColumn Header="Роль" Binding="{Binding Role}" Width="100"/>
+                                <DataGridCheckBoxColumn Header="Активен" 
+                                        Binding="{Binding IsActive, UpdateSourceTrigger=PropertyChanged}" 
+                                        Width="80">
+                                    <DataGridCheckBoxColumn.ElementStyle>
+                                        <Style TargetType="CheckBox">
+                                            <Setter Property="Command" Value="{Binding DataContext.ToggleUserActiveCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                            <Setter Property="CommandParameter" Value="{Binding}"/>
+                                        </Style>
+                                    </DataGridCheckBoxColumn.ElementStyle>
+                                </DataGridCheckBoxColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- ФОРМА РЕДАКТИРОВАНИЯ -->
+                        <Border Grid.Row="2"
+                                BorderBrush="{StaticResource BorderSoft}"
+                                BorderThickness="1"
+                                Padding="10"
+                                Margin="0,10,0,10"
+                                Background="{StaticResource CardBackground}"
+                                CornerRadius="8"
+                                Visibility="{Binding IsUserEditMode, Converter={StaticResource BoolToVisibility}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="5">
+                                    <TextBlock Text="Логин:" Style="{StaticResource LabelText}"/>
+                                    <TextBox Text="{Binding EditableUser.Username}" IsEnabled="False"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="5">
+                                    <TextBlock Text="Email:" Style="{StaticResource LabelText}"/>
+                                    <TextBox Text="{Binding EditableUser.Email}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Margin="5">
+                                    <TextBlock Text="Роль:" Style="{StaticResource LabelText}"/>
+                                    <ComboBox ItemsSource="{Binding Roles}"
+                              SelectedItem="{Binding EditableUser.Role}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <Button Content="💾 Сохранить" Command="{Binding SaveUserCommand}"
+                            Margin="5" Padding="15,8" Style="{StaticResource AccentButton}"/>
+                                    <Button Content="🗑 Удалить" Command="{Binding DeleteUserCommand}"
+                            Margin="5" Padding="15,8" Style="{StaticResource DangerButton}"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}"/>
+                                    <Button Content="✖ Сбросить" Command="{Binding ClearUserCommand}"
+                            Margin="5" Padding="15,8" Style="{StaticResource FlatButton}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- БЛОК ДОБАВЛЕНИЯ -->
+                        <Border Grid.Row="3" 
+                                BorderBrush="{StaticResource BorderSoft}" 
+                                BorderThickness="1" 
+                                Padding="10" 
+                                CornerRadius="8" 
+                                Background="{StaticResource CardBackground}"
+                                Visibility="{Binding UserManagementPanelVisible, Converter={StaticResource BoolToVisibility}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="5">
+                                    <TextBlock Text="Логин:" Style="{StaticResource LabelText}"/>
+                                    <TextBox x:Name="NewUsername" Margin="0,3,0,0" Padding="5"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="5">
+                                    <TextBlock Text="Пароль:" Style="{StaticResource LabelText}"/>
+                                    <PasswordBox x:Name="NewPassword" Margin="0,3,0,0" Padding="5"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Margin="5">
+                                    <TextBlock Text="Email:" Style="{StaticResource LabelText}"/>
+                                    <TextBox x:Name="NewEmail" Margin="0,3,0,0" Padding="5"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="3" Margin="5">
+                                    <TextBlock Text="Роль:" Style="{StaticResource LabelText}"/>
+                                    <ComboBox x:Name="NewRole" Margin="0,3,0,0" Padding="5" SelectedIndex="0">
+                                        <ComboBoxItem Content="User" IsSelected="True" />
+                                        <ComboBoxItem Content="Manager" />
+                                        <ComboBoxItem Content="SuperManager" />
+                                        <ComboBoxItem Content="Admin" />
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <Button Grid.Column="4" 
+                                    Content="➕ Добавить" 
+                                    Click="AddUser_Click" 
+                                    Margin="5"
+                                    Padding="15,8"
+                                    Style="{StaticResource SuccessButton}"
+                                    Visibility="{Binding AddUserButtonVisible, Converter={StaticResource BoolToVisibility}}"
+                                    VerticalAlignment="Bottom"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </TabItem>
+
+            <!-- КОРЗИНА -->
+            <TabItem Header="🗑 Корзина" 
+                     Visibility="{Binding RecycleBinTabVisible, Converter={StaticResource BoolToVisibility}}">
+                <Grid Margin="0,0,0,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                               Text="🗑 Корзина" 
+                               Style="{StaticResource SectionHeader}"
+                               Margin="0,0,0,10"/>
+
+                    <DataGrid Grid.Row="1" 
+                              ItemsSource="{Binding DeletedClients}" 
+                              SelectedItem="{Binding SelectedDeletedClient}"
+                              AutoGenerateColumns="False" 
+                              IsReadOnly="True"
+                              Margin="0,0,0,10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Имя" Binding="{Binding Name}" Width="150" FontWeight="Bold"/>
+                            <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="120"/>
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="180"/>
+                            <DataGridTextColumn Header="Удалён" Binding="{Binding DeletedAt, StringFormat=dd.MM.yyyy}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="♻️ Восстановить" Command="{Binding RestoreClientCommand}" 
+                                Margin="5" Padding="15,8" Style="{StaticResource AccentButton}"/>
+                        <Button Content="🗑 Удалить навсегда" Command="{Binding PermanentDeleteClientCommand}" 
+                                Margin="5" Padding="15,8" Style="{StaticResource DangerButton}"
+                                Visibility="{Binding IsSuperManager, Converter={StaticResource BoolToVisibility}}"/>
+                    </StackPanel>
+                </Grid>
+
+            </TabItem>
+
+            <!-- ЧАТ -->
+            <TabItem Header="💬 Чат" 
+                     Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}">
+                <controls:ChatView />
+            </TabItem>
+
+        </TabControl>
+
+        <!-- СТАТУСБАР -->
+        <StatusBar Grid.Row="2" 
+                   Background="{StaticResource SoftBackground}" 
+                   Margin="0,10,0,0" 
+                   BorderBrush="{StaticResource BorderSoft}" 
+                   BorderThickness="1" 
+                   Height="30">
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Всего клиентов: " Foreground="{StaticResource TextMuted}"/>
+                    <TextBlock Text="{Binding Clients.Count, FallbackValue=0}" 
+                               Foreground="{StaticResource AccentGold}" FontWeight="Bold"/>
+                </StackPanel>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Выбран: " Foreground="{StaticResource TextMuted}"/>
+                    <TextBlock Text="{Binding SelectedClient.Name, FallbackValue='Не выбран'}" 
+                               Foreground="{StaticResource TextDark}"/>
+                </StackPanel>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock Text="{Binding CurrentUser.Role, StringFormat='Роль: {0}'}" 
+                           Foreground="{StaticResource TextMuted}" FontWeight="SemiBold"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock Text="CRM Archeonzero v2.0.1" Foreground="{StaticResource AccentGold}" FontSize="11"/>
+            </StatusBarItem>
+        </StatusBar>
+
+        <!-- LoadingOverlay -->
+        <views:LoadingOverlay Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}"/>
+    </Grid>
+</Window>
