@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using System.Windows.Input;
 using System.Windows;
+using System.Windows.Input;
 
 namespace CrmArcheonzero.ViewModels
 {
@@ -134,11 +134,11 @@ namespace CrmArcheonzero.ViewModels
 
             var subject = $"Здравствуйте, {SelectedClient.Name}!";
             var body = $@"
-        <h2>Уважаемый(ая) {SelectedClient.Name}!</h2>
-        <p>Мы рады сотрудничать с вами.</p>
-        <p>Ваша компания: {SelectedClient.Company}</p>
-        <p>С уважением,<br/>Команда CRM</p>
-    ";
+                        <h2>Уважаемый(ая) {SelectedClient.Name}!</h2>
+                        <p>Мы рады сотрудничать с вами.</p>
+                        <p>Ваша компания: {SelectedClient.Company}</p>
+                        <p>С уважением,<br/>Команда CRM</p>
+                    ";
 
             Task.Run(async () =>
             {
@@ -155,13 +155,13 @@ namespace CrmArcheonzero.ViewModels
             if (_telegramService == null || SelectedClient == null) return;
 
             var message = $@"
-📢 <b>Информация о клиенте</b>
+                📢 <b>Информация о клиенте</b>
 
-<b>Имя:</b> {SelectedClient.Name}
-<b>Телефон:</b> {SelectedClient.Phone}
-<b>Email:</b> {SelectedClient.Email}
-<b>Компания:</b> {SelectedClient.Company ?? "Не указана"}
-<b>Статус:</b> {SelectedClient.Status}";
+                <b>Имя:</b> {SelectedClient.Name}
+                <b>Телефон:</b> {SelectedClient.Phone}
+                <b>Email:</b> {SelectedClient.Email}
+                <b>Компания:</b> {SelectedClient.Company ?? "Не указана"}
+                <b>Статус:</b> {SelectedClient.Status}";
 
             Task.Run(async () =>
             {

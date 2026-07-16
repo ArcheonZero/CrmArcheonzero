@@ -28,10 +28,7 @@
                        HorizontalAlignment="Left" 
                        Margin="20,0,0,0" 
                        Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}">
-                <Button Content="📊 Дашборд" 
-                        Command="{Binding RefreshCommand}" 
-                        Margin="3" Padding="8,4" 
-                        Style="{StaticResource AccentButton}"/>
+
                 <Button Content="📤 Excel" 
                         Command="{Binding ExportExcelCommand}" 
                         Margin="3" Padding="8,4" 

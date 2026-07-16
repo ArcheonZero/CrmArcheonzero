@@ -165,7 +165,7 @@ namespace CrmArcheonzero.ViewModels
 
             IsEditMode = true;
             HasUnsavedChanges = false;
-            SelectedTabIndex = 0;
+            SelectedTabIndex = 2;
             OnPropertyChanged(nameof(EditableClient));
             (SaveCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (DeleteCommand as RelayCommand)?.RaiseCanExecuteChanged();
