@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using CrmArcheonzero.DTO;
 using CrmArcheonzero.Services;
 using Microsoft.Win32;
 
@@ -10,37 +13,61 @@ namespace CrmArcheonzero.ViewModels
     public partial class MainViewModel
     {
         // ============================================================
-        // ЭКСПОРТ И БЭКАП
+        // ЭКСПОРТ (единый метод)
         // ============================================================
 
-        private async void ExportToExcel()
+        private async void Export()
         {
+            
             try
             {
                 IsLoading = true;
+                var clients = await Task.Run(() => _clientService.GetAll(false));
+                var exportData = clients.Select(c => new ClientExportDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Phone = c.Phone,
+                    Email = c.Email,
+                    Company = c.Company,
+                    Status = c.Status,
+                    Source = c.Source,
+                    Tags = c.Tags,
+                    Birthday = c.Birthday,
+                    AssignedUser = c.AssignedUser?.FullName,
+                    Notes = c.Notes
+                }).ToList();
 
-                // Диалог выбора места сохранения
+                var exportService = new ExportService();
+                string? templatePath = SelectedExportFormat switch
+                {
+                    "pdf" => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "PdfTemplate.html"),
+                    "word" => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "WordTemplate.docx"),
+                    _ => null
+                };
+                if (!string.IsNullOrEmpty(templatePath) && !File.Exists(templatePath))
+                {
+                    MessageBox.Show($"Файл шаблона не найден:\n{templatePath}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                var fileBytes = exportService.ExportClients(exportData, SelectedExportFormat, templatePath);
+
                 var saveDialog = new SaveFileDialog
                 {
-                    Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*",
-                    DefaultExt = "xlsx",
-                    FileName = $"Clients_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
+                    Filter = GetFilter(SelectedExportFormat),
+                    DefaultExt = SelectedExportFormat,
+                    FileName = $"Clients_{DateTime.Now:yyyyMMdd_HHmmss}.{SelectedExportFormat}"
                 };
 
-                if (saveDialog.ShowDialog() != true)
-                    return; // Пользователь отменил
-
-                var clients = await Task.Run(() => _clientService.GetAll(false));
-                var excelService = new ExcelExportService();
-
-                // Передаём путь в сервис (нужно будет модифицировать ExcelExportService)
-                await Task.Run(() => excelService.ExportClients(clients, saveDialog.FileName));
-
-                MessageBox.Show($"Экспорт в Excel выполнен!\nФайл: {saveDialog.FileName}", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (saveDialog.ShowDialog() == true)
+                {
+                    System.IO.File.WriteAllBytes(saveDialog.FileName, fileBytes);
+                    MessageBox.Show($"Экспорт в {SelectedExportFormat.ToUpper()} выполнен!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
             catch (Exception ex)
             {
-                LoggerService.LogError(ex, "ExportToExcel");
+                LoggerService.LogError(ex, "Export");
                 MessageBox.Show($"Ошибка экспорта: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
@@ -49,42 +76,106 @@ namespace CrmArcheonzero.ViewModels
             }
         }
 
-        private async void ExportToPdf()
+        // ============================================================
+        // ФОРМАТЫ ЭКСПОРТА
+        // ============================================================
+
+        private List<string> _exportFormats = new() { "xlsx", "csv", "html" };
+        public List<string> ExportFormats
         {
-            if (SelectedClient == null)
+            get => _exportFormats;
+            set
             {
-                MessageBox.Show("Выберите клиента для экспорта.", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                if (_exportFormats == value) return;
+                _exportFormats = value;
+                OnPropertyChanged();
             }
+        }
+
+        private string _selectedExportFormat = "xlsx";
+        public string SelectedExportFormat
+        {
+            get => _selectedExportFormat;
+            set
+            {
+                if (_selectedExportFormat == value) return;
+                _selectedExportFormat = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+
+
+        private bool CanExportCard(string? format) => SelectedClient != null && IsAuthenticated;
+
+        private async void ExportCard(string? format)
+        {
+            if (SelectedClient == null || string.IsNullOrEmpty(format)) return;
 
             try
             {
                 IsLoading = true;
+                var exportData = new List<ClientExportDto>
+        {
+            new ClientExportDto
+            {
+                Id = SelectedClient.Id,
+                Name = SelectedClient.Name,
+                Phone = SelectedClient.Phone,
+                Email = SelectedClient.Email,
+                Company = SelectedClient.Company,
+                Status = SelectedClient.Status,
+                Source = SelectedClient.Source,
+                Tags = SelectedClient.Tags,
+                Birthday = SelectedClient.Birthday,
+                AssignedUser = SelectedClient.AssignedUser?.FullName,
+                Notes = SelectedClient.Notes
+            }
+        };
+
+                var exportService = new ExportService();
+                var fileBytes = exportService.ExportClients(exportData, format);
+
                 var saveDialog = new SaveFileDialog
                 {
-                    Filter = "PDF files (*.pdf)|*.pdf",
-                    DefaultExt = "pdf",
-                    FileName = $"Клиент_{SelectedClient.Name}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf"
+                    Filter = GetFilter(format),
+                    DefaultExt = format,
+                    FileName = $"Клиент_{SelectedClient.Name}_{DateTime.Now:yyyyMMdd_HHmmss}.{format}"
                 };
 
                 if (saveDialog.ShowDialog() == true)
                 {
-                    var pdfData = await Task.Run(() => _pdfService.GenerateClientCard(SelectedClient));
-                    System.IO.File.WriteAllBytes(saveDialog.FileName, pdfData);
-                    MessageBox.Show("PDF отчёт сохранён!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.IO.File.WriteAllBytes(saveDialog.FileName, fileBytes);
+                    MessageBox.Show($"Карточка экспортирована в {format.ToUpper()}!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                LoggerService.LogError(ex, "ExportToPdf");
-                MessageBox.Show($"Ошибка экспорта в PDF: {ex.Message}\n\nПодробности записаны в лог.",
-                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                LoggerService.LogError(ex, $"ExportCard_{format}");
+                MessageBox.Show($"Ошибка экспорта: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 IsLoading = false;
             }
         }
+
+        // ============================================================
+        // ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
+        // ============================================================
+
+        private string GetFilter(string format) => format.ToLower() switch
+        {
+            "xlsx" => "Excel files (*.xlsx)|*.xlsx",
+            "csv" => "CSV files (*.csv)|*.csv",
+            "html" => "HTML files (*.html)|*.html",
+            _ => "All files (*.*)|*.*"
+        };
+
+        // ============================================================
+        // БЭКАП
+        // ============================================================
 
         private void BackupToCloud()
         {

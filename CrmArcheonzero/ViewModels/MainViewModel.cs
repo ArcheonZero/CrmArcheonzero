@@ -34,8 +34,8 @@ namespace CrmArcheonzero.ViewModels
         private readonly EmailService? _emailService;
         private readonly TelegramService? _telegramService;
         private readonly CloudStorageService? _cloudStorage;
-        private readonly PdfExportService _pdfService;
-
+        //private readonly PdfExportService _pdfService;
+        
         // ============================================================
         // СОСТОЯНИЕ
         // ============================================================
@@ -269,7 +269,7 @@ namespace CrmArcheonzero.ViewModels
             _clientService = new ClientService();
             _taskService = new TaskService();
             _userService = new UserService();
-            _pdfService = new PdfExportService();
+            //_pdfService = new PdfExportService();
 
             try
             {

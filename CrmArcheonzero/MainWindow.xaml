@@ -234,6 +234,7 @@
                                         <Button Content="✖ Сбросить" Command="{Binding ClearCommand}" 
                                                 Margin="5" Padding="15,8" Style="{StaticResource FlatButton}"/>
                                     </StackPanel>
+
                                 </Grid>
                             </Border>
 
@@ -324,7 +325,14 @@
                             </Border>
 
                         </StackPanel>
+                        
                     </ScrollViewer>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,10,0,10">
+                        <Button Content="📄 Экспорт в PDF" Command="{Binding ExportCardCommand}" 
+                                                CommandParameter="pdf" Margin="2" Padding="8,4" Style="{StaticResource AccentButton}"/>
+                        <Button Content="📄 Экспорт в Word" Command="{Binding ExportCardCommand}" 
+                                                CommandParameter="word" Margin="2" Padding="8,4" Style="{StaticResource AccentButton}"/>
+                    </StackPanel>
                 </Grid>
             </TabItem>
 

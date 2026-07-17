@@ -39,6 +39,9 @@ namespace CrmArcheonzero.ViewModels
         public ICommand SaveUserCommand { get; private set; }
         public ICommand DeleteUserCommand { get; private set; }
         public ICommand ClearUserCommand { get; private set; }
+        //export - magicodes
+        public ICommand ExportCommand { get; set; }
+
 
         // ============================================================
         // ИНИЦИАЛИЗАЦИЯ КОМАНД
@@ -59,8 +62,6 @@ namespace CrmArcheonzero.ViewModels
             AddNoteCommand = new RelayCommand(AddNote, () => IsAuthenticated && SelectedClient != null);
             DeleteNoteCommand = new RelayParameterCommand(DeleteNote);
 
-            ExportExcelCommand = new RelayCommand(ExportToExcel, () => IsAuthenticated);
-            ExportPdfCommand = new RelayCommand(ExportToPdf, () => IsAuthenticated && SelectedClient != null);
             ShowBirthdaysCommand = new RelayCommand(ShowBirthdays, () => IsAuthenticated);
             SendEmailCommand = new RelayCommand(SendEmail, () => IsAuthenticated && SelectedClient != null && _emailService != null);
             SendTelegramCommand = new RelayCommand(SendTelegram, () => IsAuthenticated && SelectedClient != null && _telegramService != null);
@@ -79,6 +80,8 @@ namespace CrmArcheonzero.ViewModels
             SaveUserCommand = new RelayCommand(SaveUser, CanSaveUser);
             DeleteUserCommand = new RelayCommand(DeleteUser, CanDeleteUser);
             ClearUserCommand = new RelayCommand(ClearUser, CanClearUser);
+
+            ExportCommand = new RelayCommand(Export, () => IsAuthenticated);
         }
 
         // ============================================================
@@ -127,6 +130,7 @@ namespace CrmArcheonzero.ViewModels
 
             // Чат
             (SendChatMessageCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            (ExportCommand as RelayCommand)?.RaiseCanExecuteChanged();
         }
         private void SendEmail()
         {
