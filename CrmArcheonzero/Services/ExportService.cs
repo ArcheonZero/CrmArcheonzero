@@ -1,23 +1,27 @@
-using Magicodes.ExporterAndImporter.Core;
-using Magicodes.ExporterAndImporter.Excel;
-using Magicodes.ExporterAndImporter.Csv;
-using Magicodes.ExporterAndImporter.Pdf;
-using Magicodes.ExporterAndImporter.Word;
 using CrmArcheonzero.DTO;
+using CrmArcheonzero.Models;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Magicodes.ExporterAndImporter.Csv;
+using Magicodes.ExporterAndImporter.Excel;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Linq;
+using System.Text;
+using System.Windows;
+using Wordroller;
 
 namespace CrmArcheonzero.Services
 {
     public class ExportService
     {
         // ============================================================
-        // ОСНОВНОЙ МЕТОД ЭКСПОРТА
+        // МАССОВЫЙ ЭКСПОРТ (список клиентов)
         // ============================================================
-        public byte[] ExportClients(List<ClientExportDto> data, string format, string? templatePath = null)
+        public byte[] ExportClients(List<ClientExportDto> data, string format)
         {
             return format.ToLower() switch
             {
@@ -27,33 +31,6 @@ namespace CrmArcheonzero.Services
                 _ => throw new NotSupportedException($"Формат {format} не поддерживается")
             };
         }
-
-        // ============================================================
-        // PDF (шаблон — путь к файлу)
-        // ============================================================
-        private byte[] ExportPdf(List<ClientExportDto> data, string? templatePath)
-        {
-            if (string.IsNullOrEmpty(templatePath) || !File.Exists(templatePath))
-                throw new FileNotFoundException("Файл шаблона для PDF не найден.", templatePath);
-
-            var templateContent = File.ReadAllText(templatePath);
-            var tempFile = Path.Combine(Path.GetTempPath(), $"export_{Guid.NewGuid()}.pdf");
-            var exporter = new PdfExporter();
-
-            // Берём первого клиента из списка
-            var singleData = data.FirstOrDefault();
-            if (singleData == null)
-                throw new InvalidOperationException("Нет данных для экспорта");
-
-            // ✅ ExportByTemplate для одного объекта
-            exporter.ExportByTemplate<ClientExportDto>(tempFile, singleData, templateContent)
-                    .GetAwaiter().GetResult();
-
-            var bytes = File.ReadAllBytes(tempFile);
-            File.Delete(tempFile);
-            return bytes;
-        }
-
 
         // ============================================================
         // HTML (ручная генерация)
@@ -78,22 +55,185 @@ namespace CrmArcheonzero.Services
         }
 
         // ============================================================
-        // WORD (шаблон — путь к файлу .docx)
+        // ЭКСПОРТ КАРТОЧКИ (PDF / Word)
         // ============================================================
-
-        private byte[] ExportWord(List<ClientExportDto> data, string? templatePath)
+        public byte[] ExportClientToPdf(Client client)
         {
-            if (string.IsNullOrEmpty(templatePath) || !File.Exists(templatePath))
-                throw new FileNotFoundException("Файл шаблона для Word не найден.", templatePath);
+            try
+            {
+                QuestPDF.Settings.License = LicenseType.Community;
 
-            var tempFile = Path.Combine(Path.GetTempPath(), $"export_{Guid.NewGuid()}.docx");
-            var exporter = new WordExporter();
+                var document = QuestPDF.Fluent.Document.Create(container =>
+                {
+                    container.Page(page =>
+                    {
+                        page.Size(PageSizes.A4);
+                        page.Margin(2, Unit.Centimetre);
+                        page.PageColor(Colors.White);
+                        page.DefaultTextStyle(x => x
+                            .FontFamily("Times New Roman")
+                            .FontSize(12)
+                        );
+                        // ✅ ОСНОВНОЙ ШРИФТ + ЗАПАСНОЙ ДЛЯ ЭМОДЗИ
+                        page.DefaultTextStyle(x => x
+                            .FontFamily("Times New Roman")
+                            .Fallback(fallback => fallback
+                                .FontFamily("Segoe UI Emoji")
+                                .FontFamily("Segoe UI Symbol")
+                            )
+                            .FontSize(12)
+                        );
+                        page.Header()
+                            .Text($"Карточка клиента: {client.Name}")
+                            .FontSize(20)
+                            .Bold()
+                            .FontColor(Colors.Blue.Darken2);
 
-            exporter.ExportByTemplate(tempFile, data.First(), templatePath).GetAwaiter().GetResult();
+                        page.Content()
+                            .PaddingVertical(1, Unit.Centimetre)
+                            .Column(x =>
+                            {
+                                x.Spacing(10);
 
-            var bytes = File.ReadAllBytes(tempFile);
-            File.Delete(tempFile);
-            return bytes;
+                                // ============================================================
+                                // ОСНОВНАЯ ИНФОРМАЦИЯ
+                                // ============================================================
+                                x.Item().Text("Основная информация").FontSize(16).Bold();
+                                x.Item().Table(table =>
+                                {
+                                    table.ColumnsDefinition(columns =>
+                                    {
+                                        columns.RelativeColumn(1);
+                                        columns.RelativeColumn(3);
+                                    });
+
+                                    AddRow(table, "Имя:", client.Name);
+                                    AddRow(table, "Телефон:", client.Phone);
+                                    AddRow(table, "Email:", client.Email);
+                                    AddRow(table, "Компания:", client.Company);
+                                    AddRow(table, "Статус:", client.Status);
+                                    AddRow(table, "Источник:", client.Source);
+                                    AddRow(table, "Теги:", client.Tags);
+                                    AddRow(table, "Дата рождения:", client.Birthday?.ToString("dd.MM.yyyy"));
+                                    AddRow(table, "Заметки:", client.Notes);
+                                    AddRow(table, "Ответственный:", client.AssignedUser?.FullName);
+                                });
+
+                                // ============================================================
+                                // ЗАДАЧИ
+                                // ============================================================
+                                if (client.Tasks?.Any() == true)
+                                {
+                                    x.Item().Text("Задачи").FontSize(16).Bold();
+                                    x.Item().Table(table =>
+                                    {
+                                        table.ColumnsDefinition(columns =>
+                                        {
+                                            columns.RelativeColumn(3);
+                                            columns.RelativeColumn(1);
+                                            columns.RelativeColumn(1);
+                                        });
+
+                                        table.Header(header =>
+                                        {
+                                            header.Cell().Text("Название").Bold();
+                                            header.Cell().Text("Срок").Bold();
+                                            header.Cell().Text("Статус").Bold();
+                                        });
+
+                                        foreach (var task in client.Tasks)
+                                        {
+                                            table.Cell().Text(task.Title);
+                                            table.Cell().Text(task.DueDate.ToString("dd.MM.yyyy"));
+                                            table.Cell().Text(task.IsCompleted ? "✅ Выполнена" : "⏳ Активна");
+                                        }
+                                    });
+                                }
+
+                                // ============================================================
+                                // ВЗАИМОДЕЙСТВИЯ
+                                // ============================================================
+                                if (client.Interactions?.Any() == true)
+                                {
+                                    x.Item().Text("Взаимодействия").FontSize(16).Bold();
+                                    x.Item().Table(table =>
+                                    {
+                                        table.ColumnsDefinition(columns =>
+                                        {
+                                            columns.RelativeColumn(2);
+                                            columns.RelativeColumn(1);
+                                            columns.RelativeColumn(2);
+                                        });
+
+                                        table.Header(header =>
+                                        {
+                                            header.Cell().Text("Дата").Bold();
+                                            header.Cell().Text("Тип").Bold();
+                                            header.Cell().Text("Описание").Bold();
+                                        });
+
+                                        foreach (var interaction in client.Interactions)
+                                        {
+                                            table.Cell().Text(interaction.Date.ToString("dd.MM.yyyy HH:mm"));
+                                            table.Cell().Text(interaction.Type);
+                                            table.Cell().Text(interaction.Description);
+                                        }
+                                    });
+                                }
+
+                                // ============================================================
+                                // ЗАМЕТКИ
+                                // ============================================================
+                                if (client.ClientNotes?.Any() == true)
+                                {
+                                    x.Item().Text("Заметки").FontSize(16).Bold();
+                                    x.Item().Table(table =>
+                                    {
+                                        table.ColumnsDefinition(columns =>
+                                        {
+                                            columns.RelativeColumn(3);
+                                            columns.RelativeColumn(1);
+                                        });
+
+                                        table.Header(header =>
+                                        {
+                                            header.Cell().Text("Заметка").Bold();
+                                            header.Cell().Text("Дата").Bold();
+                                        });
+
+                                        foreach (var note in client.ClientNotes)
+                                        {
+                                            table.Cell().Text(note.Content);
+                                            table.Cell().Text(note.CreatedAt.ToString("dd.MM.yyyy HH:mm"));
+                                        }
+                                    });
+                                }
+                            });
+
+                        page.Footer()
+                            .AlignCenter()
+                            .Text($"Сгенерировано: {DateTime.Now:dd.MM.yyyy HH:mm} | CRM Archeonzero");
+                    });
+                });
+                return document.GeneratePdf();
+
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "Имя_метода");
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                throw;
+            }
+
+                
+            
+            
+        }
+
+        private void AddRow(TableDescriptor table, string label, string? value)
+        {
+            table.Cell().Text(label).Bold();
+            table.Cell().Text(value ?? "-");
         }
     }
 }

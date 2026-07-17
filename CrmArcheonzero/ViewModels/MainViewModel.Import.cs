@@ -13,13 +13,6 @@ namespace CrmArcheonzero.ViewModels
     public partial class MainViewModel
     {
         // ============================================================
-        // КОМАНДА ИМПОРТА
-        // ============================================================
-        private RelayCommand? _importCommand;
-        public RelayCommand ImportCommand =>
-            _importCommand ??= new RelayCommand(ImportFromExcel, () => IsAuthenticated);
-
-        // ============================================================
         // МЕТОД ИМПОРТА
         // ============================================================
         private async void ImportFromExcel()
@@ -49,32 +42,50 @@ namespace CrmArcheonzero.ViewModels
                 }
 
                 var imported = 0;
+                var updated = 0;
                 foreach (var dto in importResult.Data)
                 {
                     // Проверка на дубли (по телефону или email)
                     var existing = _clientService.GetByPhoneOrEmail(dto.Phone, dto.Email);
-                    if (existing != null) continue;
-
-                    var client = new Client
+                    if (existing != null)
                     {
-                        Name = dto.Name,
-                        Phone = dto.Phone,
-                        Email = dto.Email,
-                        Company = dto.Company,
-                        Status = dto.Status ?? "Lead",
-                        Source = dto.Source,
-                        Tags = dto.Tags,
-                        Birthday = dto.Birthday,
-                        Notes = dto.Notes,
-                        CreatedAt = DateTime.Now
-                    };
+                        // Обновляем существующего клиента
+                        existing.Name = dto.Name;
+                        existing.Phone = dto.Phone;
+                        existing.Email = dto.Email;
+                        existing.Company = dto.Company;
+                        existing.Status = dto.Status ?? "Lead";
+                        existing.Source = dto.Source;
+                        existing.Tags = dto.Tags;
+                        existing.Birthday = dto.Birthday;
+                        existing.Notes = dto.Notes;
 
-                    _clientService.Add(client);
-                    imported++;
+                        _clientService.Update(existing);
+                        updated++;
+                    }
+                    else
+                    {
+                        // Добавляем нового клиента
+                        var client = new Client
+                        {
+                            Name = dto.Name,
+                            Phone = dto.Phone,
+                            Email = dto.Email,
+                            Company = dto.Company,
+                            Status = dto.Status ?? "Lead",
+                            Source = dto.Source,
+                            Tags = dto.Tags,
+                            Birthday = dto.Birthday,
+                            Notes = dto.Notes,
+                            CreatedAt = DateTime.Now
+                        };
+                        _clientService.Add(client);
+                        imported++;
+                    }
+
                 }
 
-                MessageBox.Show($"Импортировано {imported} новых клиентов.",
-                    "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Импортировано: {imported} новых, обновлено: {updated}.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadClients();
             }
             catch (Exception ex)

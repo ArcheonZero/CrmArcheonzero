@@ -20,6 +20,7 @@ namespace CrmArcheonzero.ViewModels
             if (loginWindow.ShowDialog() == true)
             {
                 IsAuthenticated = true;
+                (ExportCardCommand as RelayCommand<string>)?.RaiseCanExecuteChanged();
                 OnPropertyChanged(nameof(IsAuthenticated));
 
                 HasUnsavedChanges = false;

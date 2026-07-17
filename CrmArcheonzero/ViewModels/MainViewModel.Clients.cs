@@ -117,6 +117,7 @@ namespace CrmArcheonzero.ViewModels
 
         private void OpenEditForm(Client? client = null)
         {
+            MessageBox.Show($"OpenEditForm вызван. Клиент: {client?.Name ?? "null"}");
             if (!IsAuthenticated) return;
 
             if (HasUnsavedChanges)

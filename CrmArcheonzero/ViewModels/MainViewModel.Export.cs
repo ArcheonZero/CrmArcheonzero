@@ -7,6 +7,9 @@ using System.Windows;
 using CrmArcheonzero.DTO;
 using CrmArcheonzero.Services;
 using Microsoft.Win32;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace CrmArcheonzero.ViewModels
 {
@@ -18,7 +21,6 @@ namespace CrmArcheonzero.ViewModels
 
         private async void Export()
         {
-            
             try
             {
                 IsLoading = true;
@@ -39,18 +41,7 @@ namespace CrmArcheonzero.ViewModels
                 }).ToList();
 
                 var exportService = new ExportService();
-                string? templatePath = SelectedExportFormat switch
-                {
-                    "pdf" => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "PdfTemplate.html"),
-                    "word" => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "WordTemplate.docx"),
-                    _ => null
-                };
-                if (!string.IsNullOrEmpty(templatePath) && !File.Exists(templatePath))
-                {
-                    MessageBox.Show($"Файл шаблона не найден:\n{templatePath}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                var fileBytes = exportService.ExportClients(exportData, SelectedExportFormat, templatePath);
+                var fileBytes = exportService.ExportClients(exportData, SelectedExportFormat);
 
                 var saveDialog = new SaveFileDialog
                 {
@@ -107,7 +98,11 @@ namespace CrmArcheonzero.ViewModels
 
 
 
-        private bool CanExportCard(string? format) => SelectedClient != null && IsAuthenticated;
+        private bool CanExportCard(string? format)
+        {
+            var result = IsAuthenticated && SelectedClient != null && !string.IsNullOrEmpty(format);
+            return result;
+        }
 
         private async void ExportCard(string? format)
         {
@@ -116,32 +111,33 @@ namespace CrmArcheonzero.ViewModels
             try
             {
                 IsLoading = true;
-                var exportData = new List<ClientExportDto>
-        {
-            new ClientExportDto
-            {
-                Id = SelectedClient.Id,
-                Name = SelectedClient.Name,
-                Phone = SelectedClient.Phone,
-                Email = SelectedClient.Email,
-                Company = SelectedClient.Company,
-                Status = SelectedClient.Status,
-                Source = SelectedClient.Source,
-                Tags = SelectedClient.Tags,
-                Birthday = SelectedClient.Birthday,
-                AssignedUser = SelectedClient.AssignedUser?.FullName,
-                Notes = SelectedClient.Notes
-            }
-        };
-
                 var exportService = new ExportService();
-                var fileBytes = exportService.ExportClients(exportData, format);
+
+                byte[] fileBytes;
+                string extension;
+
+                if (format.ToLower() == "pdf")
+                {
+                    fileBytes = exportService.ExportClientToPdf(SelectedClient);
+                    extension = "pdf";
+                }
+                else if (format.ToLower() == "word")
+                {
+                    // Word пока не реализован
+                    MessageBox.Show("Экспорт в Word пока не реализован.");
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show($"Формат {format} не поддерживается.");
+                    return;
+                }
 
                 var saveDialog = new SaveFileDialog
                 {
-                    Filter = GetFilter(format),
-                    DefaultExt = format,
-                    FileName = $"Клиент_{SelectedClient.Name}_{DateTime.Now:yyyyMMdd_HHmmss}.{format}"
+                    Filter = $"{format.ToUpper()} files (*.{extension})|*.{extension}",
+                    DefaultExt = extension,
+                    FileName = $"Клиент_{SelectedClient.Name}_{DateTime.Now:yyyyMMdd_HHmmss}.{extension}"
                 };
 
                 if (saveDialog.ShowDialog() == true)
@@ -153,13 +149,15 @@ namespace CrmArcheonzero.ViewModels
             catch (Exception ex)
             {
                 LoggerService.LogError(ex, $"ExportCard_{format}");
-                MessageBox.Show($"Ошибка экспорта: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка экспорта карточки: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 IsLoading = false;
             }
         }
+
+
 
         // ============================================================
         // ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
