@@ -1,33 +1,80 @@
-using System;
+using CrmArcheonzero.DTO;
+using CrmArcheonzero.Models;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Magicodes.ExporterAndImporter.Csv;
+using Magicodes.ExporterAndImporter.Excel;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using CrmArcheonzero.Models;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Windows;
+using Wordroller;
 
 namespace CrmArcheonzero.Services
 {
-    public class PdfExportService
+    public class ExportService
     {
-        public PdfExportService()
+        // ============================================================
+        // МАССОВЫЙ ЭКСПОРТ (список клиентов)
+        // ============================================================
+        public byte[] ExportClients(List<ClientExportDto> data, string format)
         {
-            QuestPDF.Settings.License = LicenseType.Community;
+            return format.ToLower() switch
+            {
+                "xlsx" => new ExcelExporter().ExportAsByteArray(data).GetAwaiter().GetResult(),
+                "csv" => new CsvExporter().ExportAsByteArray(data).GetAwaiter().GetResult(),
+                "html" => ExportToHtml(data),
+                _ => throw new NotSupportedException($"Формат {format} не поддерживается")
+            };
         }
 
-        public byte[] GenerateClientCard(Client client)
+        // ============================================================
+        // HTML (ручная генерация)
+        // ============================================================
+        private byte[] ExportToHtml(List<ClientExportDto> data)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("<html><head><meta charset='UTF-8'></head><body>");
+            sb.AppendLine("<h1>Клиенты</h1>");
+            sb.AppendLine("<table border='1' cellpadding='5'>");
+            sb.AppendLine("<tr><th>ID</th><th>Имя</th><th>Телефон</th><th>Email</th><th>Компания</th><th>Статус</th></tr>");
+
+            foreach (var client in data)
+            {
+                sb.AppendLine($"<tr><td>{client.Id}</td><td>{client.Name}</td><td>{client.Phone}</td><td>{client.Email}</td><td>{client.Company}</td><td>{client.Status}</td></tr>");
+            }
+
+            sb.AppendLine("</table>");
+            sb.AppendLine("</body></html>");
+
+            return Encoding.UTF8.GetBytes(sb.ToString());
+        }
+
+        // ============================================================
+        // ЭКСПОРТ КАРТОЧКИ (PDF / Word)
+        // ============================================================
+        public byte[] ExportClientToPdf(Client client)
         {
             try
             {
                 QuestPDF.Settings.License = LicenseType.Community;
 
-                var document = Document.Create(container =>
+                var document = QuestPDF.Fluent.Document.Create(container =>
                 {
                     container.Page(page =>
                     {
                         page.Size(PageSizes.A4);
                         page.Margin(2, Unit.Centimetre);
                         page.PageColor(Colors.White);
-                        // ✅ УСТАНАВЛИВАЕМ ШРИФТ ДЛЯ ВСЕГО ДОКУМЕНТА
+                        page.DefaultTextStyle(x => x
+                            .FontFamily("Times New Roman")
+                            .FontSize(12)
+                        );
+                        // ✅ ОСНОВНОЙ ШРИФТ + ЗАПАСНОЙ ДЛЯ ЭМОДЗИ
                         page.DefaultTextStyle(x => x
                             .FontFamily("Times New Roman")
                             .Fallback(fallback => fallback
@@ -48,7 +95,9 @@ namespace CrmArcheonzero.Services
                             {
                                 x.Spacing(10);
 
-                                // === ОСНОВНАЯ ИНФОРМАЦИЯ ===
+                                // ============================================================
+                                // ОСНОВНАЯ ИНФОРМАЦИЯ
+                                // ============================================================
                                 x.Item().Text("Основная информация").FontSize(16).Bold();
                                 x.Item().Table(table =>
                                 {
@@ -66,11 +115,13 @@ namespace CrmArcheonzero.Services
                                     AddRow(table, "Источник:", client.Source);
                                     AddRow(table, "Теги:", client.Tags);
                                     AddRow(table, "Дата рождения:", client.Birthday?.ToString("dd.MM.yyyy"));
-                                    AddRow(table, "Примечания:", client.Notes);
-                                    AddRow(table, "Дата создания:", client.CreatedAt.ToString("dd.MM.yyyy"));
+                                    AddRow(table, "Заметки:", client.Notes);
+                                    AddRow(table, "Ответственный:", client.AssignedUser?.FullName);
                                 });
 
-                                // === ЗАДАЧИ ===
+                                // ============================================================
+                                // ЗАДАЧИ
+                                // ============================================================
                                 if (client.Tasks?.Any() == true)
                                 {
                                     x.Item().Text("Задачи").FontSize(16).Bold();
@@ -99,7 +150,9 @@ namespace CrmArcheonzero.Services
                                     });
                                 }
 
-                                // === ВЗАИМОДЕЙСТВИЯ ===
+                                // ============================================================
+                                // ВЗАИМОДЕЙСТВИЯ
+                                // ============================================================
                                 if (client.Interactions?.Any() == true)
                                 {
                                     x.Item().Text("Взаимодействия").FontSize(16).Bold();
@@ -108,8 +161,8 @@ namespace CrmArcheonzero.Services
                                         table.ColumnsDefinition(columns =>
                                         {
                                             columns.RelativeColumn(2);
-                                            columns.RelativeColumn(2);
                                             columns.RelativeColumn(1);
+                                            columns.RelativeColumn(2);
                                         });
 
                                         table.Header(header =>
@@ -127,7 +180,10 @@ namespace CrmArcheonzero.Services
                                         }
                                     });
                                 }
-                                // === ЗАМЕТКИ ===
+
+                                // ============================================================
+                                // ЗАМЕТКИ
+                                // ============================================================
                                 if (client.ClientNotes?.Any() == true)
                                 {
                                     x.Item().Text("Заметки").FontSize(16).Bold();
@@ -156,23 +212,28 @@ namespace CrmArcheonzero.Services
 
                         page.Footer()
                             .AlignCenter()
-                            .Text($"Сгенерировано: {DateTime.Now:dd.MM.yyyy HH:mm} | CRM Archeonzero v2.0.1");
+                            .Text($"Сгенерировано: {DateTime.Now:dd.MM.yyyy HH:mm} | CRM Archeonzero");
                     });
                 });
-
                 return document.GeneratePdf();
+
             }
             catch (Exception ex)
             {
-                LoggerService.LogError(ex, "PdfExportService.GenerateClientCard");
-                throw; // Перебрасываем, чтобы показать сообщение пользователю
+                LoggerService.LogError(ex, "Имя_метода");
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                throw;
             }
+
+                
+            
+            
         }
 
         private void AddRow(TableDescriptor table, string label, string? value)
         {
-            table.Cell().Text(label).Bold().FontFamily("Arial");
-            table.Cell().Text(value ?? "-").FontFamily("Arial");
+            table.Cell().Text(label).Bold();
+            table.Cell().Text(value ?? "-");
         }
     }
 }

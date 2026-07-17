@@ -1,14 +1,20 @@
 using System;
-using System.Threading.Tasks;   // для Task
-using System.Windows;           // для MessageBox
-using Microsoft.Win32;          // для OpenFileDialog
-using CrmArcheonzero.Services;
+using System.Collections.ObjectModel;
+using System.Windows;
+using System.Threading.Tasks;
+using Microsoft.Win32;
+using Magicodes.ExporterAndImporter.Excel;
 using CrmArcheonzero.Models;
+using CrmArcheonzero.DTO;
+using CrmArcheonzero.Services;
 
 namespace CrmArcheonzero.ViewModels
 {
     public partial class MainViewModel
     {
+        // ============================================================
+        // МЕТОД ИМПОРТА
+        // ============================================================
         private async void ImportFromExcel()
         {
             try
@@ -22,39 +28,76 @@ namespace CrmArcheonzero.ViewModels
                 if (dialog.ShowDialog() != true) return;
 
                 IsLoading = true;
-                var importService = new ExcelImportService();
-                var (clients, tasks, interactions, notes, errors) = 
-                    await Task.Run(() => importService.ImportFromExcel(dialog.FileName));
 
-                if (clients.Count == 0)
+                // Импорт через Magicodes.IE
+                var importer = new ExcelImporter();
+                var importResult = await Task.Run(() => importer.Import<ClientImportDto>(dialog.FileName, null));
+
+                if (importResult.HasError)
                 {
-                    MessageBox.Show("Нет данных для импорта.", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    var errors = string.Join("\n", importResult.RowErrors);
+                    MessageBox.Show($"Ошибки импорта:\n{errors}",
+                        "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                // Сохранение клиентов
-                foreach (var client in clients)
+                var imported = 0;
+                var updated = 0;
+                foreach (var dto in importResult.Data)
                 {
-                    await _clientService.Add(client);
+                    // Проверка на дубли (по телефону или email)
+                    var existing = _clientService.GetByPhoneOrEmail(dto.Phone, dto.Email);
+                    if (existing != null)
+                    {
+                        // Обновляем существующего клиента
+                        existing.Name = dto.Name;
+                        existing.Phone = dto.Phone;
+                        existing.Email = dto.Email;
+                        existing.Company = dto.Company;
+                        existing.Status = dto.Status ?? "Lead";
+                        existing.Source = dto.Source;
+                        existing.Tags = dto.Tags;
+                        existing.Birthday = dto.Birthday;
+                        existing.Notes = dto.Notes;
+
+                        _clientService.Update(existing);
+                        updated++;
+                    }
+                    else
+                    {
+                        // Добавляем нового клиента
+                        var client = new Client
+                        {
+                            Name = dto.Name,
+                            Phone = dto.Phone,
+                            Email = dto.Email,
+                            Company = dto.Company,
+                            Status = dto.Status ?? "Lead",
+                            Source = dto.Source,
+                            Tags = dto.Tags,
+                            Birthday = dto.Birthday,
+                            Notes = dto.Notes,
+                            CreatedAt = DateTime.Now
+                        };
+                        _clientService.Add(client);
+                        imported++;
+                    }
+
                 }
 
-                // ... сохранение задач, взаимодействий, заметок ...
-
-                MessageBox.Show($"Импортировано {clients.Count} клиентов.", 
-                    "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"Импортировано: {imported} новых, обновлено: {updated}.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadClients();
             }
             catch (Exception ex)
             {
                 LoggerService.LogError(ex, "ImportFromExcel");
-                MessageBox.Show($"Ошибка импорта: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка импорта: {ex.Message}",
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 IsLoading = false;
             }
         }
-
-        private bool CanImportExcel() => IsAuthenticated;
     }
 }

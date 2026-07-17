@@ -29,9 +29,9 @@ namespace CrmArcheonzero.Data
                 _currentDbContext = provider.ToLower() switch
                 {
                     "sqlserver" => new SqlServerDbContext(connectionString),
-                    "sqlite" => new SqliteDbContext(connectionString ?? "Data Source=H:\\++MyDir++\\++Dev\\WthDS\\crm.db;Mode=ReadWriteCreate;Cache=Shared;"),
+                    "sqlite" => new SqliteDbContext(connectionString ?? "Data Source=C:\\++Dev\\+WthDS\\crm.db;Mode=ReadWriteCreate;Cache=Shared;"),
                     "inmemory" => new InMemoryDbContext("CrmDb_InMemory"),
-                    _ => new SqliteDbContext("Data Source=H:\\++MyDir++\\++Dev\\WthDS\\crm.db;Mode=ReadWriteCreate;Cache=Shared;")
+                    _ => new SqliteDbContext("Data Source=C:\\++Dev\\+WthDS\\crm.db;Mode=ReadWriteCreate;Cache=Shared;")
                 };
 
                 _currentDbContext.EnsureDatabaseCreated();

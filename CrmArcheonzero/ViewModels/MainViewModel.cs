@@ -9,6 +9,7 @@ using LiveCharts;
 using LiveCharts.Wpf;
 using CrmArcheonzero.Models;
 using CrmArcheonzero.Services;
+using System.Linq;
 
 namespace CrmArcheonzero.ViewModels
 {
@@ -34,8 +35,8 @@ namespace CrmArcheonzero.ViewModels
         private readonly EmailService? _emailService;
         private readonly TelegramService? _telegramService;
         private readonly CloudStorageService? _cloudStorage;
-        private readonly PdfExportService _pdfService;
-
+        //private readonly PdfExportService _pdfService;
+        
         // ============================================================
         // СОСТОЯНИЕ
         // ============================================================
@@ -96,6 +97,7 @@ namespace CrmArcheonzero.ViewModels
                     (AddNoteCommand as RelayCommand)?.RaiseCanExecuteChanged();
                     (AddInteractionCommand as RelayCommand)?.RaiseCanExecuteChanged();
                     (ExportPdfCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                    (ExportCardCommand as RelayCommand<string>)?.RaiseCanExecuteChanged();
                 }
                 else
                 {
@@ -170,15 +172,23 @@ namespace CrmArcheonzero.ViewModels
             set { _hasUnsavedChanges = value; OnPropertyChanged(); }
         }
 
+
         public int SelectedTabIndex
         {
             get => _selectedTabIndex;
             set
             {
+                if (_selectedTabIndex == value) return;
                 _selectedTabIndex = value;
                 OnPropertyChanged();
-                if (value == 1) LoadDashboard();
-                if (value == 2) LoadDetails();
+
+                // СЮДА ДОБАВЬ ЛОГИКУ АВТО-ВЫБОРА КЛИЕНТА
+                if (value == 2 && SelectedClient == null && Clients != null && Clients.Any())
+                {
+                    var firstClient = Clients.First();
+                    SelectedClient = firstClient;
+                    OpenEditForm(firstClient);
+                }
             }
         }
 
@@ -269,7 +279,7 @@ namespace CrmArcheonzero.ViewModels
             _clientService = new ClientService();
             _taskService = new TaskService();
             _userService = new UserService();
-            _pdfService = new PdfExportService();
+            //_pdfService = new PdfExportService();
 
             try
             {

@@ -19,25 +19,33 @@
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Identity" Version="1.6.0" />
-		<PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
+		<PackageReference Include="BouncyCastle.Cryptography" Version="2.3.1" />
 		<PackageReference Include="coverlet.collector" Version="6.0.0">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="DS.Documents.Word" Version="7.2.6" />
+		<PackageReference Include="DS.Documents.Word.Layout" Version="7.2.6" />
 		<PackageReference Include="FluentAssertions" Version="6.12.0" />
+		<PackageReference Include="Magicodes.IE.Csv" Version="2.9.0" />
+		<PackageReference Include="Magicodes.IE.Excel" Version="2.9.0" />
+		<PackageReference Include="Magicodes.IE.Html" Version="2.9.0" />
+		<PackageReference Include="Magicodes.IE.Pdf" Version="2.9.0" />
+		<PackageReference Include="Magicodes.IE.Word" Version="2.9.0" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
 		<PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
-		<PackageReference Include="EPPlus" Version="6.2.10" />
 		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.21.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
 		<PackageReference Include="MimeKit" Version="4.3.0" />
 		<PackageReference Include="Moq" Version="4.20.69" />
 		<PackageReference Include="QuestPDF" Version="2023.12.0" />
 		<PackageReference Include="MailKit" Version="4.3.0" />
+		<PackageReference Include="SkiaSharp" Version="4.150.1" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="4.150.1" />
 		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.2" />
 		<PackageReference Include="System.Formats.Asn1" Version="7.0.0" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.21.0" />
@@ -48,6 +56,7 @@
 		<PackageReference Include="Google.Apis.Drive.v3" Version="1.68.0.3512" />
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="System.Text.Json" Version="7.0.0" />
+		<PackageReference Include="Wordroller" Version="1.2.0" />
 		<PackageReference Include="xunit" Version="2.5.0" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
 		  <PrivateAssets>all</PrivateAssets>

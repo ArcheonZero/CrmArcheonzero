@@ -114,5 +114,16 @@ namespace CrmArcheonzero.Services
         {
             return _repository.GetDeleted();
         }
+        public Client? GetByPhoneOrEmail(string? phone, string? email)
+        {
+            if (string.IsNullOrEmpty(phone) && string.IsNullOrEmpty(email))
+                return null;
+
+            return _repository.GetAll()
+                .FirstOrDefault(c =>
+                    (!string.IsNullOrEmpty(phone) && c.Phone == phone) ||
+                    (!string.IsNullOrEmpty(email) && c.Email == email)
+                );
+        }
     }
 }
