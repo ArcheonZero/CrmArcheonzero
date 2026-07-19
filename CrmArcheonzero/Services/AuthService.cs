@@ -37,7 +37,7 @@ namespace CrmArcheonzero.Services
             if (BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             {
                 _currentUser = user;
-                user.LastLogin = DateTime.Now;
+                user.LastLogin = DateTime.UtcNow;
                 _context.SaveChanges();
                 
                 LoggerService.LogAction("Вход", $"Пользователь {user.Username} вошёл в систему");
@@ -86,7 +86,7 @@ namespace CrmArcheonzero.Services
                 FullName = fullName,
                 Role = role,
                 IsActive = true,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             dbContext.Set<User>().Add(user);
@@ -129,7 +129,7 @@ namespace CrmArcheonzero.Services
 
             var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
             user.RefreshToken = token;
-            user.RefreshTokenExpiry = DateTime.Now.AddHours(24);
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddHours(24);
             _context.SaveChanges();
             return token;
         }
@@ -137,7 +137,7 @@ namespace CrmArcheonzero.Services
         public bool ResetPassword(string token, string newPassword)
         {
             var user = ((DbContext)_context).Set<User>()
-                .FirstOrDefault(u => u.RefreshToken == token && u.RefreshTokenExpiry > DateTime.Now);
+                .FirstOrDefault(u => u.RefreshToken == token && u.RefreshTokenExpiry > DateTime.UtcNow);
 
             if (user == null) return false;
 

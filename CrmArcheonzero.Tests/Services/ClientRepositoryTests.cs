@@ -70,7 +70,7 @@ namespace CrmArcheonzero.Tests.Services
                 Phone = "+7 (999) 111-22-33",
                 Email = "new@client.com",
                 Status = "Lead",
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 Position = "Менеджер",
                 Address = "ул. Новая, 1",
                 Source = "Website",

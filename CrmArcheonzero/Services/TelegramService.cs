@@ -54,7 +54,7 @@ namespace CrmArcheonzero.Services
                 📢 <b>Новое действие с клиентом</b>
                 <b>Клиент:</b> {clientName}
                 <b>Действие:</b> {action}
-                <b>Время:</b> {DateTime.Now:dd.MM.yyyy HH:mm}";
+                <b>Время:</b> {DateTime.UtcNow:dd.MM.yyyy HH:mm}";
             await SendMessageAsync(message);
         }
 

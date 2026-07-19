@@ -10,7 +10,7 @@ namespace CrmArcheonzero.Tests.Models
         [Fact]
         public void Client_ShouldSetPropertiesCorrectly()
         {
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
             var client = new Client
             {
                 Id = 1,

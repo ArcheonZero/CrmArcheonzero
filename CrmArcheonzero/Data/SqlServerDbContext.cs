@@ -121,7 +121,7 @@ namespace CrmArcheonzero.Data
                 FullName = "Администратор",
                 Role = "Admin",
                 IsActive = true,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             Users.Add(admin);

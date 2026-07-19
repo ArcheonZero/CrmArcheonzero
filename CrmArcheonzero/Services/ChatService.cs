@@ -23,7 +23,7 @@ namespace CrmArcheonzero.Services
                 UserId = userId,
                 UserName = userName,
                 Message = message,
-                SentAt = DateTime.Now
+                SentAt = DateTime.UtcNow
             };
 
             _context.ChatMessages.Add(msg);

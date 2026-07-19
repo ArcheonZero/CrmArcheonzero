@@ -47,7 +47,7 @@ namespace CrmArcheonzero.ViewModels
                 {
                     Filter = GetFilter(SelectedExportFormat),
                     DefaultExt = SelectedExportFormat,
-                    FileName = $"Clients_{DateTime.Now:yyyyMMdd_HHmmss}.{SelectedExportFormat}"
+                    FileName = $"Clients_{DateTime.UtcNow:yyyyMMdd_HHmmss}.{SelectedExportFormat}"
                 };
 
                 if (saveDialog.ShowDialog() == true)
@@ -137,7 +137,7 @@ namespace CrmArcheonzero.ViewModels
                 {
                     Filter = $"{format.ToUpper()} files (*.{extension})|*.{extension}",
                     DefaultExt = extension,
-                    FileName = $"Клиент_{SelectedClient.Name}_{DateTime.Now:yyyyMMdd_HHmmss}.{extension}"
+                    FileName = $"Клиент_{SelectedClient.Name}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.{extension}"
                 };
 
                 if (saveDialog.ShowDialog() == true)
@@ -183,7 +183,7 @@ namespace CrmArcheonzero.ViewModels
                 {
                     Filter = "Database files (*.db)|*.db",
                     DefaultExt = "db",
-                    FileName = $"crm_backup_{DateTime.Now:yyyyMMdd_HHmmss}.db"
+                    FileName = $"crm_backup_{DateTime.UtcNow:yyyyMMdd_HHmmss}.db"
                 };
 
                 if (saveDialog.ShowDialog() == true)

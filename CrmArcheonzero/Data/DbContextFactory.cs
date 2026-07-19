@@ -24,19 +24,17 @@ namespace CrmArcheonzero.Data
                     .Build();
 
                 var provider = config["Database:Provider"] ?? "Sqlite";
-                var connectionString = config["Database:ConnectionString"];
+                var connectionString = config["Database:ConnectionString"] ?? "Data Source=crm.db";
 
                 _currentDbContext = provider.ToLower() switch
                 {
+                    "postgresql" or "postgres" or "npgsql" => new PostgreDbContext(connectionString),
                     "sqlserver" => new SqlServerDbContext(connectionString),
-                    "sqlite" => new SqliteDbContext(connectionString ?? "Data Source=C:\\++Dev\\+WthDS\\crm.db;Mode=ReadWriteCreate;Cache=Shared;"),
-                    "inmemory" => new InMemoryDbContext("CrmDb_InMemory"),
-                    _ => new SqliteDbContext("Data Source=C:\\++Dev\\+WthDS\\crm.db;Mode=ReadWriteCreate;Cache=Shared;")
+                    _ => new SqliteDbContext(connectionString)
                 };
 
                 _currentDbContext.EnsureDatabaseCreated();
                 _currentDbContext.EnsureSeedData();
-
                 return _currentDbContext;
             }
         }

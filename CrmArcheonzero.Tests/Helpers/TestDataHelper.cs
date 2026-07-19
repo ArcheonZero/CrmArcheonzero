@@ -18,7 +18,7 @@ namespace CrmArcheonzero.Tests.Helpers
                     Email = "ivan@mail.ru",
                     Status = "Active",
                     Company = "ООО ТехноСервис",
-                    CreatedAt = DateTime.Now.AddDays(-30),
+                    CreatedAt = DateTime.UtcNow.AddDays(-30),
                     Birthday = new DateTime(1985, 5, 15),
                     Position = "Менеджер",
                     Address = "ул. Тестовая, 1",
@@ -34,7 +34,7 @@ namespace CrmArcheonzero.Tests.Helpers
                     Email = "maria@yandex.ru",
                     Status = "Lead",
                     Company = "ИП Сидорова",
-                    CreatedAt = DateTime.Now.AddDays(-15),
+                    CreatedAt = DateTime.UtcNow.AddDays(-15),
                     Position = "Директор",
                     Address = "ул. Центральная, 5",
                     Source = "Referral",
@@ -49,7 +49,7 @@ namespace CrmArcheonzero.Tests.Helpers
                     Email = "alex@google.com",
                     Status = "Inactive",
                     Company = "ООО Альфа",
-                    CreatedAt = DateTime.Now.AddDays(-60),
+                    CreatedAt = DateTime.UtcNow.AddDays(-60),
                     Position = "Разработчик",
                     Address = "ул. Программистов, 10",
                     Source = "Social",
@@ -70,7 +70,7 @@ namespace CrmArcheonzero.Tests.Helpers
                 FullName = "Test User",
                 Role = "User",
                 IsActive = true,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 RefreshToken = "",
                 RefreshTokenExpiry = null,
                 AssignedClients = new List<Client>()
@@ -88,7 +88,7 @@ namespace CrmArcheonzero.Tests.Helpers
                 FullName = "Administrator",
                 Role = "Admin",
                 IsActive = true,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 RefreshToken = "",
                 RefreshTokenExpiry = null,
                 AssignedClients = new List<Client>()
@@ -101,7 +101,7 @@ namespace CrmArcheonzero.Tests.Helpers
             {
                 Id = 1,
                 ClientId = 1,
-                Date = DateTime.Now.AddDays(-5),
+                Date = DateTime.UtcNow.AddDays(-5),
                 Type = "Call",
                 Description = "Тестовый звонок",
                 Outcome = "Успешно"
@@ -116,10 +116,10 @@ namespace CrmArcheonzero.Tests.Helpers
                 ClientId = 1,
                 Title = "Тестовая задача",
                 Description = "Описание задачи",
-                DueDate = DateTime.Now.AddDays(7),
+                DueDate = DateTime.UtcNow.AddDays(7),
                 Priority = "High",
                 IsCompleted = false,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
         }
 
@@ -130,7 +130,7 @@ namespace CrmArcheonzero.Tests.Helpers
                 Id = 1,
                 ClientId = 1,
                 Content = "Тестовая заметка",
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
         }
     }

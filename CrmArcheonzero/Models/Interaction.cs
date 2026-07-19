@@ -6,7 +6,7 @@ namespace CrmArcheonzero.Models
     {
         public int Id { get; set; }
         public int ClientId { get; set; }
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = DateTime.UtcNow;
         public string Type { get; set; } = "Call"; // Call, Email, Meeting, Note
         public string Description { get; set; } = string.Empty;
         public string Outcome { get; set; } = string.Empty;

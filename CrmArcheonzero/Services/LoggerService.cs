@@ -15,8 +15,8 @@ namespace CrmArcheonzero.Services
                 if (!Directory.Exists(LogDirectory))
                     Directory.CreateDirectory(LogDirectory);
 
-                var logFile = Path.Combine(LogDirectory, $"crm_log_{DateTime.Now:yyyy-MM-dd}.txt");
-                var entry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR: {context} | {ex.Message}\n{ex.StackTrace}\n";
+                var logFile = Path.Combine(LogDirectory, $"crm_log_{DateTime.UtcNow:yyyy-MM-dd}.txt");
+                var entry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] ERROR: {context} | {ex.Message}\n{ex.StackTrace}\n";
 
                 lock (_lock)
                 {
@@ -33,8 +33,8 @@ namespace CrmArcheonzero.Services
                 if (!Directory.Exists(LogDirectory))
                     Directory.CreateDirectory(LogDirectory);
 
-                var logFile = Path.Combine(LogDirectory, $"crm_log_{DateTime.Now:yyyy-MM-dd}.txt");
-                var entry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] INFO: {message}\n";
+                var logFile = Path.Combine(LogDirectory, $"crm_log_{DateTime.UtcNow:yyyy-MM-dd}.txt");
+                var entry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] INFO: {message}\n";
 
                 lock (_lock)
                 {
@@ -52,8 +52,8 @@ namespace CrmArcheonzero.Services
                 if (!Directory.Exists(LogDirectory))
                     Directory.CreateDirectory(LogDirectory);
 
-                var logFile = Path.Combine(LogDirectory, $"crm_log_{DateTime.Now:yyyy-MM-dd}.txt");
-                var entry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ACTION: {action} | {details}\n";
+                var logFile = Path.Combine(LogDirectory, $"crm_log_{DateTime.UtcNow:yyyy-MM-dd}.txt");
+                var entry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] ACTION: {action} | {details}\n";
 
                 lock (_lock)
                 {
@@ -69,7 +69,7 @@ namespace CrmArcheonzero.Services
             {
                 if (!Directory.Exists(LogDirectory)) return;
                 var files = Directory.GetFiles(LogDirectory, "crm_log_*.txt");
-                var cutoff = DateTime.Now.AddDays(-daysToKeep);
+                var cutoff = DateTime.UtcNow.AddDays(-daysToKeep);
                 foreach (var file in files)
                 {
                     if (File.GetCreationTime(file) < cutoff)

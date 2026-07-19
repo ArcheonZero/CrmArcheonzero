@@ -10,6 +10,9 @@ namespace CrmArcheonzero
     {
         protected override async void OnStartup(StartupEventArgs e)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            //var hash = BCrypt.Net.BCrypt.HashPassword("admin123");
+            //Console.WriteLine(hash);
             base.OnStartup(e);
 
             LoggerService.CleanOldLogs();

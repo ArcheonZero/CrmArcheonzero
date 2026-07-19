@@ -8,7 +8,7 @@ namespace CrmArcheonzero.Models
         public int UserId { get; set; }
         public string UserName { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
-        public DateTime SentAt { get; set; } = DateTime.Now;
+        public DateTime SentAt { get; set; } = DateTime.UtcNow;
 
         public User? User { get; set; }
     }

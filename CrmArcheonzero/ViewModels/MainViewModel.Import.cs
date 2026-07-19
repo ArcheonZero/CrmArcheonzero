@@ -77,7 +77,7 @@ namespace CrmArcheonzero.ViewModels
                             Tags = dto.Tags,
                             Birthday = dto.Birthday,
                             Notes = dto.Notes,
-                            CreatedAt = DateTime.Now
+                            CreatedAt = DateTime.UtcNow
                         };
                         _clientService.Add(client);
                         imported++;

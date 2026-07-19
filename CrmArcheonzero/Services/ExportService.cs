@@ -212,7 +212,7 @@ namespace CrmArcheonzero.Services
 
                         page.Footer()
                             .AlignCenter()
-                            .Text($"Сгенерировано: {DateTime.Now:dd.MM.yyyy HH:mm} | CRM Archeonzero");
+                            .Text($"Сгенерировано: {DateTime.UtcNow:dd.MM.yyyy HH:mm} | CRM Archeonzero");
                     });
                 });
                 return document.GeneratePdf();

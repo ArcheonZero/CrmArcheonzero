@@ -131,7 +131,7 @@ namespace CrmArcheonzero.ViewModels
             {
                 EditableClient = new Client
                 {
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     Status = "Lead",
                     AssignedUserId = _userService.GetCurrentUser()?.Id
                 };
@@ -413,7 +413,7 @@ namespace CrmArcheonzero.ViewModels
         {
             try
             {
-                var currentMonth = DateTime.Now.Month;
+                var currentMonth = DateTime.UtcNow.Month;
                 var birthdayClients = _clientService.GetClientsWithBirthdayInMonth(currentMonth);
 
                 if (birthdayClients.Count == 0)

@@ -10,7 +10,7 @@ namespace CrmArcheonzero.Tests.Models
         [Fact]
         public void ClientTask_ShouldSetPropertiesCorrectly()
         {
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
             var task = new ClientTask
             {
                 Id = 1,

@@ -46,12 +46,12 @@ namespace CrmArcheonzero.Services
     {
         public T Value { get; }
         public DateTime ExpiresAt { get; }
-        public bool IsExpired => DateTime.Now > ExpiresAt;
+        public bool IsExpired => DateTime.UtcNow > ExpiresAt;
 
         public CacheItem(T value, int expirationMinutes)
         {
             Value = value;
-            ExpiresAt = DateTime.Now.AddMinutes(expirationMinutes);
+            ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes);
         }
     }
 }

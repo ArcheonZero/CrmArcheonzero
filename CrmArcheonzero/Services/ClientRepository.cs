@@ -100,7 +100,7 @@ namespace CrmArcheonzero.Services
             if (client == null) return;
 
             client.IsDeleted = true;
-            client.DeletedAt = DateTime.Now;
+            client.DeletedAt = DateTime.UtcNow;
             client.DeletedByUserId = deletedByUserId;
 
             ((DbContext)_context).Entry(client).State = EntityState.Modified;

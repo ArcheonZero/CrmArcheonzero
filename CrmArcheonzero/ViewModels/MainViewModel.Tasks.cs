@@ -21,7 +21,7 @@ namespace CrmArcheonzero.ViewModels
                 var interaction = new Interaction
                 {
                     ClientId = SelectedClient.Id,
-                    Date = DateTime.Now,
+                    Date = DateTime.UtcNow,
                     Type = "Call",
                     Description = NewInteractionDesc,
                     Outcome = "Новое"
@@ -51,10 +51,10 @@ namespace CrmArcheonzero.ViewModels
                     ClientId = SelectedClient.Id,
                     Title = NewTaskTitle,
                     Description = "Новая задача",
-                    DueDate = DateTime.Now.AddDays(7),
+                    DueDate = DateTime.UtcNow.AddDays(7),
                     Priority = "Medium",
                     IsCompleted = false,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 _taskService.AddTask(task);
@@ -123,7 +123,7 @@ namespace CrmArcheonzero.ViewModels
                 {
                     ClientId = SelectedClient.Id,
                     Content = NewNoteText,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 _taskService.AddNote(note);
