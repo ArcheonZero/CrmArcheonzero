@@ -12,12 +12,12 @@ namespace CrmArcheonzero.Services
 {
     public class AuthService
     {
-        private IDbContext _context;
+        private IDbContext? _context;
         private User? _currentUser;
 
         public AuthService()
         {
-            
+            // Контекст не создаётся здесь
         }
 
         public AuthService(IDbContext context)
@@ -25,7 +25,6 @@ namespace CrmArcheonzero.Services
             _context = context;
         }
 
-        // [ИЗМЕНЕНО] Метод Login с поддержкой выбора провайдера
         public bool Login(string username, string password, string provider = "Sqlite")
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
@@ -33,16 +32,10 @@ namespace CrmArcheonzero.Services
 
             try
             {
-                // Получаем строку подключения
                 var connectionString = GetConnectionString(provider);
-
-                // Устанавливаем провайдер и сбрасываем старый контекст
                 DbContextFactory.SetProvider(provider, connectionString);
-
-                // Явно создаём контекст для выбранного провайдера
                 _context = DbContextFactory.GetDbContext();
 
-                // Остальная логика входа...
                 var user = ((DbContext)_context).Set<User>()
                     .FirstOrDefault(u => u.Username == username && u.IsActive);
 
@@ -106,7 +99,6 @@ namespace CrmArcheonzero.Services
             DbContextFactory.ResetDbContext();
         }
 
-
         public User? GetCurrentUser() => _currentUser;
 
         public bool IsAdmin() => _currentUser?.Role == "Admin";
@@ -124,6 +116,12 @@ namespace CrmArcheonzero.Services
 
         public bool CreateUser(string username, string password, string email, string fullName, string role = "User")
         {
+            if (_context == null)
+            {
+                MessageBox.Show("Сначала подключитесь к базе данных!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
             try
             {
                 var dbContext = (DbContext)_context;
@@ -157,6 +155,12 @@ namespace CrmArcheonzero.Services
 
         public bool ChangePassword(int userId, string oldPassword, string newPassword)
         {
+            if (_context == null)
+            {
+                MessageBox.Show("Сначала подключитесь к базе данных!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
             try
             {
                 var user = ((DbContext)_context).Set<User>().Find(userId);
@@ -180,6 +184,12 @@ namespace CrmArcheonzero.Services
 
         public bool UpdateProfile(int userId, string newFullName, string newEmail)
         {
+            if (_context == null)
+            {
+                MessageBox.Show("Сначала подключитесь к базе данных!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
             try
             {
                 var user = ((DbContext)_context).Set<User>().Find(userId);
@@ -202,6 +212,12 @@ namespace CrmArcheonzero.Services
 
         public string? GenerateResetToken(string email)
         {
+            if (_context == null)
+            {
+                MessageBox.Show("Сначала подключитесь к базе данных!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return null;
+            }
+
             try
             {
                 var user = ((DbContext)_context).Set<User>().FirstOrDefault(u => u.Email == email);
@@ -222,6 +238,12 @@ namespace CrmArcheonzero.Services
 
         public bool ResetPassword(string token, string newPassword)
         {
+            if (_context == null)
+            {
+                MessageBox.Show("Сначала подключитесь к базе данных!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
             try
             {
                 var user = ((DbContext)_context).Set<User>()

@@ -15,7 +15,16 @@ namespace CrmArcheonzero.ViewModels
 
         private ObservableCollection<ChatMessage> _chatMessages = new();
         private string _newChatMessage = "";
-        private readonly ChatService _chatService = new ChatService();
+        private ChatService? _chatService;
+public ChatService ChatService
+{
+    get
+    {
+        if (_chatService == null)
+            _chatService = new ChatService();
+        return _chatService;
+    }
+}
 
         public ObservableCollection<ChatMessage> ChatMessages
         {

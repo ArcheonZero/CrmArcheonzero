@@ -13,17 +13,6 @@ using System.Linq;
 
 namespace CrmArcheonzero.ViewModels
 {
-    /// <summary>
-    /// Основной класс ViewModel для CRM.
-    /// Логика разбита по partial-файлам:
-    /// - Clients: CRUD, поиск, фильтр, статистика, корзина
-    /// - Tasks: задачи, заметки, взаимодействия
-    /// - Auth: вход, выход, смена пароля
-    /// - Visibility: управление видимостью
-    /// - Commands: инициализация и обновление команд
-    /// - Export: экспорт Excel, PDF, бэкап
-    /// - Chat: чат (если добавлен)
-    /// </summary>
     public partial class MainViewModel : INotifyPropertyChanged
     {
         // ============================================================
@@ -35,14 +24,13 @@ namespace CrmArcheonzero.ViewModels
         private readonly EmailService? _emailService;
         private readonly TelegramService? _telegramService;
         private readonly CloudStorageService? _cloudStorage;
-        //private readonly PdfExportService _pdfService;
-        
+
         // ============================================================
         // СОСТОЯНИЕ
         // ============================================================
         private ObservableCollection<Client> _clients = new();
         private Client? _selectedClient;
-        private Client _selectedDeletedClient;
+        private Client? _selectedDeletedClient;
         private string _searchText = "";
         private string _statusFilter = "Все";
         private bool _isEditMode;
@@ -61,6 +49,7 @@ namespace CrmArcheonzero.ViewModels
         private string _newInteractionDesc = "";
         private ObservableCollection<User> _users = new();
         private ObservableCollection<Client> _deletedClients = new();
+
         // ============================================================
         // СВОЙСТВА
         // ============================================================
@@ -70,15 +59,18 @@ namespace CrmArcheonzero.ViewModels
             get => _deletedClients;
             set { _deletedClients = value; OnPropertyChanged(); }
         }
+
         public ObservableCollection<Client> Clients
         {
             get => _clients;
             set { _clients = value; OnPropertyChanged(); }
         }
+
         public async Task LoadAdditionalDataAsync()
         {
             await Task.CompletedTask;
         }
+
         public Client? SelectedClient
         {
             get => _selectedClient;
@@ -108,7 +100,7 @@ namespace CrmArcheonzero.ViewModels
 
         public Client EditableClient { get; set; } = new Client();
 
-        public Client SelectedDeletedClient
+        public Client? SelectedDeletedClient
         {
             get => _selectedDeletedClient;
             set
@@ -120,6 +112,7 @@ namespace CrmArcheonzero.ViewModels
                 (PermanentDeleteClientCommand as RelayCommand)?.RaiseCanExecuteChanged();
             }
         }
+
         public string SearchText
         {
             get => _searchText;
@@ -172,7 +165,6 @@ namespace CrmArcheonzero.ViewModels
             set { _hasUnsavedChanges = value; OnPropertyChanged(); }
         }
 
-
         public int SelectedTabIndex
         {
             get => _selectedTabIndex;
@@ -182,7 +174,6 @@ namespace CrmArcheonzero.ViewModels
                 _selectedTabIndex = value;
                 OnPropertyChanged();
 
-                // СЮДА ДОБАВЬ ЛОГИКУ АВТО-ВЫБОРА КЛИЕНТА
                 if (value == 2 && SelectedClient == null && Clients != null && Clients.Any())
                 {
                     var firstClient = Clients.First();
@@ -225,7 +216,6 @@ namespace CrmArcheonzero.ViewModels
                 if (_newNoteText == value) return;
                 _newNoteText = value;
                 OnPropertyChanged();
-
             }
         }
 
@@ -252,7 +242,7 @@ namespace CrmArcheonzero.ViewModels
         public Func<double, string>? ChartFormatter { get; set; }
 
         // ============================================================
-        // ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ (ЗАГЛУШКИ)
+        // ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
         // ============================================================
 
         private void LoadDashboard() { }
@@ -265,12 +255,14 @@ namespace CrmArcheonzero.ViewModels
         {
             SelectedTabIndex = 4;
         }
+
         private void LoadDeletedClients()
         {
-            var deleted = _clientService.GetAllDeleted(); // или _repository.GetDeleted()
+            var deleted = _clientService.GetAllDeleted();
             DeletedClients = new ObservableCollection<Client>(deleted);
             OnPropertyChanged(nameof(DeletedClients));
         }
+
         // ============================================================
         // КОНСТРУКТОР
         // ============================================================
@@ -279,7 +271,6 @@ namespace CrmArcheonzero.ViewModels
             _clientService = new ClientService();
             _taskService = new TaskService();
             _userService = new UserService();
-            //_pdfService = new PdfExportService();
 
             try
             {
@@ -308,26 +299,48 @@ namespace CrmArcheonzero.ViewModels
             catch { _cloudStorage = null; }
 
             InitializeCommands();
-            InitializeChart();
-            InitializeChatCommands();
-            LoadChatMessages();
 
-            IsAuthenticated = _userService.GetCurrentUser() != null;
+
+            IsAuthenticated = false;
             HasUnsavedChanges = false;
-            LoadUsers();
-            UpdateVisibility();
-            LoadClients();
-            LoadDeletedClients();
-            LoadChatMessages();
+
+            // Все вызовы Load* убраны — они будут вызваны после входа
         }
 
         // ============================================================
-        // ЧАРТ (заглушка, можно перенести в другой partial-файл)
+        // МЕТОД ДЛЯ ЗАГРУЗКИ ДАННЫХ ПОСЛЕ ВХОДА
+        // ============================================================
+        public async Task LoadAllDataAsync()
+        {
+            try
+            {
+                IsLoading = true;
+
+                await LoadClientsAsync();
+                LoadUsers();
+                LoadDeletedClients();
+                UpdateVisibility();
+                InitializeChart(); 
+
+                IsAuthenticated = true;
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "LoadAllDataAsync");
+                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        // ============================================================
+        // ЧАРТ
         // ============================================================
 
         private void InitializeChart()
         {
-
             try
             {
                 var stats = _clientService.GetStatistics();
@@ -357,7 +370,7 @@ namespace CrmArcheonzero.ViewModels
     }
 
     // ============================================================
-    // RELAY COMMAND (вынесен сюда, чтобы не создавать отдельный файл)
+    // RELAY COMMAND
     // ============================================================
     public class RelayCommand : ICommand
     {

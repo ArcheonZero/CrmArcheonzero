@@ -531,8 +531,12 @@
 
             <!-- ЧАТ -->
             <TabItem Header="💬 Чат" 
-                     Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}">
-                <controls:ChatView />
+         Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}">
+                <TabItem.ContentTemplate>
+                    <DataTemplate>
+                        <controls:ChatView />
+                    </DataTemplate>
+                </TabItem.ContentTemplate>
             </TabItem>
 
         </TabControl>

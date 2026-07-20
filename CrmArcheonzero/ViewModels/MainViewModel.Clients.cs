@@ -82,6 +82,7 @@ namespace CrmArcheonzero.ViewModels
 
         private void UpdateChart()
         {
+            if (!IsAuthenticated) return;
             try
             {
                 var stats = _clientService.GetStatistics(false);
@@ -99,6 +100,7 @@ namespace CrmArcheonzero.ViewModels
 
         private void LoadClientDetails(int clientId)
         {
+            if (!IsAuthenticated) return;
             try
             {
                 var client = _clientService.GetById(clientId);
@@ -117,7 +119,6 @@ namespace CrmArcheonzero.ViewModels
 
         private void OpenEditForm(Client? client = null)
         {
-            MessageBox.Show($"OpenEditForm вызван. Клиент: {client?.Name ?? "null"}");
             if (!IsAuthenticated) return;
 
             if (HasUnsavedChanges)
@@ -319,7 +320,7 @@ namespace CrmArcheonzero.ViewModels
 
                     CloseEditForm();
                     LoadClients();
-                    LoadDeletedClients(); // <-- добавь этот вызов
+                    LoadDeletedClients();
                     _telegramService?.SendClientNotification(clientName, "Удалён в корзину");
                 }
                 catch (Exception ex)
@@ -327,7 +328,7 @@ namespace CrmArcheonzero.ViewModels
                     LoggerService.LogError(ex, "DeleteClient");
                     MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-                
+
             }
             SelectedClient = null;
         }
@@ -411,6 +412,7 @@ namespace CrmArcheonzero.ViewModels
 
         private void ShowBirthdays()
         {
+            if (!IsAuthenticated) return;
             try
             {
                 var currentMonth = DateTime.UtcNow.Month;

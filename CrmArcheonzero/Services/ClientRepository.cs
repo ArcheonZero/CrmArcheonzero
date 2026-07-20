@@ -10,23 +10,36 @@ namespace CrmArcheonzero.Services
 {
     public class ClientRepository
     {
-        private readonly IDbContext _context;
+        private IDbContext? _context;
 
-        public ClientRepository()
+        // Ленивое свойство для доступа к контексту
+        private IDbContext Context
         {
-            _context = DbContextFactory.GetDbContext();
+            get
+            {
+                if (_context == null)
+                    _context = DbContextFactory.GetDbContext();
+                return _context;
+            }
         }
 
+        // Конструктор по умолчанию — НЕ создаёт контекст
+        public ClientRepository()
+        {
+            // Ничего не делаем
+        }
+
+        // Конструктор с контекстом (для тестов или внедрения)
         public ClientRepository(IDbContext context)
         {
             _context = context;
         }
 
-        // ===== ОСНОВНЫЕ МЕТОДЫ =====
+        // ===== ВСЕ МЕТОДЫ ИСПОЛЬЗУЮТ Context ВМЕСТО _context =====
 
         public List<Client> GetAll(bool includeDeleted = false)
         {
-            var query = ((DbContext)_context).Set<Client>()
+            var query = ((DbContext)Context).Set<Client>()
                 .Include(c => c.Interactions)
                 .Include(c => c.Tasks)
                 .Include(c => c.ClientNotes)
@@ -37,18 +50,20 @@ namespace CrmArcheonzero.Services
 
             return query.ToList();
         }
+
         public List<Client> GetDeleted()
         {
-            return _context.Clients
+            return ((DbContext)Context).Set<Client>()
                 .Where(c => c.IsDeleted)
                 .Include(c => c.Interactions)
                 .Include(c => c.Tasks)
                 .Include(c => c.ClientNotes)
                 .ToList();
         }
+
         public async Task<List<Client>> GetAllAsync(bool includeDeleted = false)
         {
-            var query = ((DbContext)_context).Set<Client>()
+            var query = ((DbContext)Context).Set<Client>()
                 .Include(c => c.Interactions)
                 .Include(c => c.Tasks)
                 .Include(c => c.ClientNotes)
@@ -62,7 +77,7 @@ namespace CrmArcheonzero.Services
 
         public Client? GetById(int id, bool includeDeleted = false)
         {
-            var query = ((DbContext)_context).Set<Client>()
+            var query = ((DbContext)Context).Set<Client>()
                 .Include(c => c.Interactions)
                 .Include(c => c.Tasks)
                 .Include(c => c.ClientNotes)
@@ -76,19 +91,20 @@ namespace CrmArcheonzero.Services
 
         public void Add(Client client)
         {
-            ((DbContext)_context).Set<Client>().Add(client);
-            _context.SaveChanges();
+            ((DbContext)Context).Set<Client>().Add(client);
+            Context.SaveChanges();
         }
 
         public void Update(Client client)
         {
-            ((DbContext)_context).Entry(client).State = EntityState.Modified;
-            _context.SaveChanges();
+            var dbContext = (DbContext)Context;
+            dbContext.Entry(client).State = EntityState.Modified;
+            Context.SaveChanges();
         }
 
         public void DetachClient(Client client)
         {
-            var context = (DbContext)_context;
+            var context = (DbContext)Context;
             context.Entry(client).State = EntityState.Detached;
         }
 
@@ -103,8 +119,9 @@ namespace CrmArcheonzero.Services
             client.DeletedAt = DateTime.UtcNow;
             client.DeletedByUserId = deletedByUserId;
 
-            ((DbContext)_context).Entry(client).State = EntityState.Modified;
-            _context.SaveChanges();
+            var dbContext = (DbContext)Context;
+            dbContext.Entry(client).State = EntityState.Modified;
+            Context.SaveChanges();
         }
 
         public void Restore(int id)
@@ -116,8 +133,9 @@ namespace CrmArcheonzero.Services
             client.DeletedAt = null;
             client.DeletedByUserId = null;
 
-            ((DbContext)_context).Entry(client).State = EntityState.Modified;
-            _context.SaveChanges();
+            var dbContext = (DbContext)Context;
+            dbContext.Entry(client).State = EntityState.Modified;
+            Context.SaveChanges();
         }
 
         public void PermanentDelete(int id)
@@ -125,15 +143,13 @@ namespace CrmArcheonzero.Services
             var client = GetById(id, true);
             if (client == null) return;
 
-            ((DbContext)_context).Set<Client>().Remove(client);
-            _context.SaveChanges();
+            ((DbContext)Context).Set<Client>().Remove(client);
+            Context.SaveChanges();
         }
-
-
 
         public List<User> GetAllUsers()
         {
-            return ((DbContext)_context).Set<User>().ToList();
+            return ((DbContext)Context).Set<User>().ToList();
         }
 
         // ===== ПОИСК =====
@@ -144,7 +160,7 @@ namespace CrmArcheonzero.Services
                 return GetAll(includeDeleted);
 
             var q = query.ToLower();
-            var dbQuery = ((DbContext)_context).Set<Client>()
+            var dbQuery = ((DbContext)Context).Set<Client>()
                 .Where(c => c.Name.ToLower().Contains(q) ||
                             c.Phone.ToLower().Contains(q) ||
                             c.Email.ToLower().Contains(q) ||
@@ -161,7 +177,7 @@ namespace CrmArcheonzero.Services
 
         public Dictionary<string, int> GetStatistics(bool includeDeleted = false)
         {
-            var context = (DbContext)_context;
+            var context = (DbContext)Context;
             var query = context.Set<Client>().AsQueryable();
 
             if (!includeDeleted)
@@ -183,7 +199,7 @@ namespace CrmArcheonzero.Services
 
         public bool ClientExists(string email, int excludeId = 0)
         {
-            var context = (DbContext)_context;
+            var context = (DbContext)Context;
             return context.Set<Client>().Any(c => c.Email == email && c.Id != excludeId && !c.IsDeleted);
         }
 
@@ -191,13 +207,13 @@ namespace CrmArcheonzero.Services
 
         public void AddInteraction(Interaction interaction)
         {
-            ((DbContext)_context).Set<Interaction>().Add(interaction);
-            _context.SaveChanges();
+            ((DbContext)Context).Set<Interaction>().Add(interaction);
+            Context.SaveChanges();
         }
 
         public List<ClientTask> GetTasksByClient(int clientId)
         {
-            return ((DbContext)_context).Set<ClientTask>()
+            return ((DbContext)Context).Set<ClientTask>()
                 .Where(t => t.ClientId == clientId)
                 .OrderBy(t => t.DueDate)
                 .ToList();
@@ -205,51 +221,53 @@ namespace CrmArcheonzero.Services
 
         public void AddTask(ClientTask task)
         {
-            ((DbContext)_context).Set<ClientTask>().Add(task);
-            _context.SaveChanges();
+            ((DbContext)Context).Set<ClientTask>().Add(task);
+            Context.SaveChanges();
         }
 
         public void UpdateTask(ClientTask task)
         {
-            ((DbContext)_context).Entry(task).State = EntityState.Modified;
-            _context.SaveChanges();
+            var dbContext = (DbContext)Context;
+            dbContext.Entry(task).State = EntityState.Modified;
+            Context.SaveChanges();
         }
 
         public void DeleteTask(int id)
         {
-            var task = ((DbContext)_context).Set<ClientTask>().Find(id);
+            var task = ((DbContext)Context).Set<ClientTask>().Find(id);
             if (task != null)
             {
-                ((DbContext)_context).Set<ClientTask>().Remove(task);
-                _context.SaveChanges();
+                ((DbContext)Context).Set<ClientTask>().Remove(task);
+                Context.SaveChanges();
             }
         }
 
         public void AddNote(Note note)
         {
-            ((DbContext)_context).Set<Note>().Add(note);
-            _context.SaveChanges();
+            ((DbContext)Context).Set<Note>().Add(note);
+            Context.SaveChanges();
         }
 
         public void DeleteNote(int id)
         {
-            var note = ((DbContext)_context).Set<Note>().Find(id);
+            var note = ((DbContext)Context).Set<Note>().Find(id);
             if (note != null)
             {
-                ((DbContext)_context).Set<Note>().Remove(note);
-                _context.SaveChanges();
+                ((DbContext)Context).Set<Note>().Remove(note);
+                Context.SaveChanges();
             }
         }
 
         public List<Client> GetClientsWithBirthdayInMonth(int month)
         {
-            return ((DbContext)_context).Set<Client>()
+            return ((DbContext)Context).Set<Client>()
                 .Where(c => c.Birthday != null && c.Birthday.Value.Month == month && !c.IsDeleted)
                 .ToList();
         }
+
         public void UpdateUser(User user)
         {
-            var existing = _context.Users.Find(user.Id);
+            var existing = Context.Users.Find(user.Id);
             if (existing == null) return;
 
             existing.Email = user.Email;
@@ -257,17 +275,16 @@ namespace CrmArcheonzero.Services
             existing.Role = user.Role;
             existing.IsActive = user.IsActive;
 
-            _context.SaveChanges();
+            Context.SaveChanges();
         }
 
         public void DeleteUser(int userId)
         {
-            var user = _context.Users.Find(userId);
+            var user = Context.Users.Find(userId);
             if (user == null) return;
 
-            // Мягкое удаление
             user.IsActive = false;
-            _context.SaveChanges();
+            Context.SaveChanges();
         }
     }
 }
