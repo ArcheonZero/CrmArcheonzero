@@ -8,6 +8,16 @@ namespace CrmArcheonzero.Data
         private static IDbContext? _currentDbContext;
         private static readonly object _lock = new object();
 
+        private static string _selectedProvider;
+        private static string _selectedConnectionString;
+
+        public static void SetProvider(string provider, string connectionString)
+        {
+            _selectedProvider = provider;
+            _selectedConnectionString = connectionString;
+            _currentDbContext = null; // сбросить текущий контекст
+        }
+
         public static IDbContext GetDbContext()
         {
             if (_currentDbContext != null)
@@ -18,19 +28,23 @@ namespace CrmArcheonzero.Data
                 if (_currentDbContext != null)
                     return _currentDbContext;
 
-                var config = new ConfigurationBuilder()
-                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                    .Build();
-
-                var provider = config["Database:Provider"] ?? "Sqlite";
-                var connectionString = config["Database:ConnectionString"] ?? "Data Source=crm.db";
-
-                _currentDbContext = provider.ToLower() switch
+                // Если провайдер ещё не выбран — берём из appsettings.json
+                if (string.IsNullOrEmpty(_selectedProvider))
                 {
-                    "postgresql" or "postgres" or "npgsql" => new PostgreDbContext(connectionString),
-                    "sqlserver" => new SqlServerDbContext(connectionString),
-                    _ => new SqliteDbContext(connectionString)
+                    var config = new ConfigurationBuilder()
+                        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                        .Build();
+
+                    _selectedProvider = config["Database:Provider"] ?? "Sqlite";
+                    _selectedConnectionString = config["Database:ConnectionString"] ?? "Data Source=crm.db";
+                }
+
+                _currentDbContext = _selectedProvider.ToLower() switch
+                {
+                    "postgresql" or "postgres" or "npgsql" => new PostgreDbContext(_selectedConnectionString),
+                    "sqlserver" => new SqlServerDbContext(_selectedConnectionString),
+                    _ => new SqliteDbContext(_selectedConnectionString)
                 };
 
                 _currentDbContext.EnsureDatabaseCreated();
