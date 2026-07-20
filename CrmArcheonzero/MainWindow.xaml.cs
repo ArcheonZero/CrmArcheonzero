@@ -2,19 +2,26 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using CrmArcheonzero.Services;
+using CrmArcheonzero.Views;
 
 namespace CrmArcheonzero
 {
     public partial class MainWindow : Window
     {
-        private readonly AuthService _authService;
 
-        public MainWindow()
-        {
-            InitializeComponent();
-            _authService = new AuthService();
-        }
+            private readonly AuthService _authService;
 
+            public MainWindow()
+            {
+                InitializeComponent();
+                _authService = new AuthService();
+
+            }
+
+
+
+            // Остальной код MainWindow...
+        
         // ============================================================
         // ОБРАБОТЧИКИ СОБЫТИЙ ДЛЯ ВКЛАДКИ "ПОЛЬЗОВАТЕЛИ"
         // ============================================================

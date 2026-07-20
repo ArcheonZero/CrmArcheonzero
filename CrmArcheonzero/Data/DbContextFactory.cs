@@ -37,7 +37,7 @@ namespace CrmArcheonzero.Data
                         .Build();
 
                     _selectedProvider = config["Database:Provider"] ?? "Sqlite";
-                    _selectedConnectionString = config["Database:ConnectionString"] ?? "Data Source=crm.db";
+                    _selectedConnectionString = config["Database:ConnectionString"] ?? "Data Source=H:\\++MyDir++\\++Dev\\+WthDS\\crm.db;Mode=ReadWriteCreate;Cache=Shared;";
                 }
 
                 _currentDbContext = _selectedProvider.ToLower() switch
