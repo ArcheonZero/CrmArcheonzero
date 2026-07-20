@@ -43,77 +43,91 @@
                        HorizontalAlignment="Center"/>
         </Border>
 
-        <!-- Поле: Логин -->
+        <!-- [ИЗМЕНЕНО] Поле: Выбор базы данных + кнопка подключения -->
         <StackPanel Grid.Row="2" Margin="0,0,0,10">
-            <TextBlock Text="Имя пользователя:" 
-                       FontWeight="Bold" 
-                       Margin="0,0,0,5"/>
-            <TextBox x:Name="UsernameBox" 
-                     Padding="10" 
-                     FontSize="14" 
-                     BorderBrush="#DDD" 
-                     BorderThickness="1"
-                     Height="40"
-                     VerticalContentAlignment="Center"/>
+            <TextBlock Text="База данных:" FontWeight="Bold" Margin="0,0,0,5"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ComboBox x:Name="ProviderComboBox" 
+                  Grid.Column="0"
+                  SelectedIndex="0"
+                  Height="40"
+                  Padding="5"
+                  BorderBrush="#DDD"
+                  BorderThickness="1"
+                  VerticalContentAlignment="Center">
+                    <ComboBoxItem Content="SQLite (локальная)" Tag="Sqlite"/>
+                    <ComboBoxItem Content="SQL Server" Tag="SqlServer"/>
+                    <ComboBoxItem Content="PostgreSQL" Tag="Postgre"/>
+                </ComboBox>
+                <Button Grid.Column="1" 
+                Content="Подключиться"
+                Click="Connect_Click"
+                Margin="5,0,0,0"
+                Padding="12,8"
+                Background="#2A3B8C"
+                Foreground="White"
+                FontWeight="Bold"
+                Cursor="Hand"/>
+            </Grid>
         </StackPanel>
 
-        <!-- Поле: Пароль -->
+        <!-- Поле: Логин (изначально отключено) -->
         <StackPanel Grid.Row="3" Margin="0,0,0,10">
-            <TextBlock Text="Пароль:" 
-                       FontWeight="Bold" 
-                       Margin="0,0,0,5"/>
+            <TextBlock Text="Имя пользователя:" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBox x:Name="UsernameBox" 
+             Padding="10" 
+             FontSize="14" 
+             BorderBrush="#DDD" 
+             BorderThickness="1"
+             Height="40"
+             IsEnabled="False"
+             VerticalContentAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Поле: Пароль (изначально отключено) -->
+        <StackPanel Grid.Row="4" Margin="0,0,0,10">
+            <TextBlock Text="Пароль:" FontWeight="Bold" Margin="0,0,0,5"/>
             <PasswordBox x:Name="PasswordBox" 
-                         Padding="10" 
-                         FontSize="14" 
-                         BorderBrush="#DDD" 
-                         BorderThickness="1"
-                         Height="40"
-                         VerticalContentAlignment="Center"/>
+                 Padding="10" 
+                 FontSize="14" 
+                 BorderBrush="#DDD" 
+                 BorderThickness="1"
+                 Height="40"
+                 IsEnabled="False"
+                 VerticalContentAlignment="Center"/>
         </StackPanel>
 
-        <!-- [НОВОЕ] Поле: Выбор базы данных -->
-        <StackPanel Grid.Row="4" Margin="0,0,0,15">
-            <TextBlock Text="База данных:" 
-                       FontWeight="Bold" 
-                       Margin="0,0,0,5"/>
-            <ComboBox x:Name="ProviderComboBox" 
-                      SelectedIndex="0"
-                      Height="40"
-                      Padding="5"
-                      BorderBrush="#DDD"
-                      BorderThickness="1"
-                      VerticalContentAlignment="Center">
-                <ComboBoxItem Content="SQLite (локальная)" Tag="Sqlite"/>
-                <ComboBoxItem Content="SQL Server" Tag="SqlServer"/>
-                <ComboBoxItem Content="PostgreSQL" Tag="Postgre"/>
-            </ComboBox>
-        </StackPanel>
-
-        <!-- Кнопки -->
+        <!-- Кнопки (Войти изначально отключена) -->
         <StackPanel Grid.Row="5" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Center" 
-                    Margin="0,5,0,15">
-            <Button Content="Войти"
-                    Click="Login_Click"
-                    Width="120"
-                    Height="40"
-                    Margin="5"
-                    Background="#2A3B8C"
-                    Foreground="White"
-                    FontWeight="Bold"
-                    FontSize="14"
-                    Cursor="Hand"/>
+            Orientation="Horizontal" 
+            HorizontalAlignment="Center" 
+            Margin="0,5,0,15">
+            <Button x:Name="LoginButton"
+            Content="Войти"
+            Click="Login_Click"
+            Width="120"
+            Height="40"
+            Margin="5"
+            IsEnabled="False"
+            Background="#2A3B8C"
+            Foreground="White"
+            FontWeight="Bold"
+            FontSize="14"
+            Cursor="Hand"/>
             <Button Content="Отмена"
-                    Click="Cancel_Click"
-                    Width="120"
-                    Height="40"
-                    Margin="5"
-                    Background="#F5F5F5"
-                    Foreground="#333"
-                    FontWeight="Bold"
-                    FontSize="14"
-                    Cursor="Hand"/>
+            Click="Cancel_Click"
+            Width="120"
+            Height="40"
+            Margin="5"
+            Background="#F5F5F5"
+            Foreground="#333"
+            FontWeight="Bold"
+            FontSize="14"
+            Cursor="Hand"/>
         </StackPanel>
 
         <!-- Демо-блок -->

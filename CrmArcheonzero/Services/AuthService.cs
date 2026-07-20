@@ -2,6 +2,7 @@ using BCrypt.Net;
 using CrmArcheonzero.Data;
 using CrmArcheonzero.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 using System.Security.Cryptography;
@@ -16,7 +17,7 @@ namespace CrmArcheonzero.Services
 
         public AuthService()
         {
-            _context = DbContextFactory.GetDbContext();
+            
         }
 
         public AuthService(IDbContext context)
@@ -32,15 +33,16 @@ namespace CrmArcheonzero.Services
 
             try
             {
-                // Получаем строку подключения для выбранного провайдера
+                // Получаем строку подключения
                 var connectionString = GetConnectionString(provider);
 
-                // Устанавливаем провайдер в фабрике
+                // Устанавливаем провайдер и сбрасываем старый контекст
                 DbContextFactory.SetProvider(provider, connectionString);
 
-                // Получаем контекст для выбранного провайдера
+                // Явно создаём контекст для выбранного провайдера
                 _context = DbContextFactory.GetDbContext();
 
+                // Остальная логика входа...
                 var user = ((DbContext)_context).Set<User>()
                     .FirstOrDefault(u => u.Username == username && u.IsActive);
 
@@ -74,18 +76,21 @@ namespace CrmArcheonzero.Services
             }
         }
 
-        // [НОВОЕ] Вспомогательный метод для получения строки подключения
-        private string GetConnectionString(string provider)
+        public string GetConnectionString(string provider)
         {
+            var config = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .Build();
+
             return provider.ToLower() switch
             {
-                "postgre" or "postgresql" or "npgsql" => "Host=localhost;Database=crmdb;Username=postgres;Password=postgres",
-                "sqlserver" => "Server=(localdb)\\mssqllocaldb;Database=CrmDb;Trusted_Connection=True;",
-                _ => "Data Source=crm.db"
+                "postgre" or "postgresql" or "npgsql" => config["Database:Providers:PostgreSQL:ConnectionString"] ?? "Host=localhost;Database=crmdb;Username=postgres;Password=postgres",
+                "sqlserver" => config["Database:Providers:SqlServer:ConnectionString"] ?? "Server=(localdb)\\mssqllocaldb;Database=CrmDb;Trusted_Connection=True;",
+                _ => config["Database:Providers:Sqlite:ConnectionString"] ?? "Data Source=crm.db"
             };
         }
 
-        // [СОХРАНЁН] Старый метод Login для обратной совместимости
         public bool Login(string username, string password)
         {
             return Login(username, password, "Sqlite");
@@ -98,10 +103,9 @@ namespace CrmArcheonzero.Services
                 LoggerService.LogAction("Выход", $"Пользователь {_currentUser.Username} вышел из системы");
             }
             _currentUser = null;
-
-            // Сбрасываем контекст при выходе
             DbContextFactory.ResetDbContext();
         }
+
 
         public User? GetCurrentUser() => _currentUser;
 

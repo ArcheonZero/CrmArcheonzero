@@ -28,24 +28,9 @@ namespace CrmArcheonzero
                     LoggerService.LogError(ex, "AppDomain.UnhandledException");
             };
 
-            // Создаём и показываем главное окно
+            // Показываем главное окно
             var mainWindow = new MainWindow();
             mainWindow.Show();
-        }
-
-        private async Task LoadDataAsync(MainWindow mainWindow)
-        {
-            try
-            {
-                var vm = mainWindow.DataContext as ViewModels.MainViewModel;
-                if (vm == null) return;
-                await vm.LoadClientsAsync();
-                await vm.LoadAdditionalDataAsync();
-            }
-            catch (Exception ex)
-            {
-                LoggerService.LogError(ex, "Фоновая загрузка");
-            }
         }
     }
 }

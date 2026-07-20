@@ -1,7 +1,9 @@
 using CrmArcheonzero.Models;
+using CrmArcheonzero.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace CrmArcheonzero.Data
@@ -136,6 +138,14 @@ namespace CrmArcheonzero.Data
 
         public void EnsureDatabaseCreated()
         {
+            var dbPath = Database.GetDbConnection().DataSource;
+            if (File.Exists(dbPath))
+            {
+                LoggerService.LogAction("SqliteDbContext", $"База данных уже существует: {dbPath}");
+                return;
+            }
+
+            LoggerService.LogAction("SqliteDbContext", $"База данных не найдена. Создаём новую: {dbPath}");
             Database.EnsureCreated();
         }
 

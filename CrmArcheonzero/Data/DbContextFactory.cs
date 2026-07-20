@@ -1,5 +1,8 @@
+using CrmArcheonzero.Services;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.IO;
+using System.Windows;
 
 namespace CrmArcheonzero.Data
 {
@@ -13,13 +16,27 @@ namespace CrmArcheonzero.Data
 
         public static void SetProvider(string provider, string connectionString)
         {
+            // Проверяем, существует ли файл БД для SQLite
+            if (provider.ToLower() == "sqlite" && !string.IsNullOrEmpty(connectionString))
+            {
+                var dbPath = connectionString.Replace("Data Source=", "").Split(';')[0];
+                if (!File.Exists(dbPath))
+                {
+                    var result = MessageBox.Show($"База данных по пути {dbPath} не найдена. Создать новую?",
+                        "База данных не найдена", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (result == MessageBoxResult.No)
+                        return;
+                }
+            }
+
             _selectedProvider = provider;
             _selectedConnectionString = connectionString;
-            _currentDbContext = null; // сбросить текущий контекст
+            _currentDbContext = null;
         }
 
         public static IDbContext GetDbContext()
         {
+            // Если контекст уже создан — возвращаем его
             if (_currentDbContext != null)
                 return _currentDbContext;
 
@@ -28,21 +45,16 @@ namespace CrmArcheonzero.Data
                 if (_currentDbContext != null)
                     return _currentDbContext;
 
-                // Если провайдер ещё не выбран — берём из appsettings.json
+                // Проверяем, что провайдер установлен
                 if (string.IsNullOrEmpty(_selectedProvider))
                 {
-                    var config = new ConfigurationBuilder()
-                        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                        .Build();
-
-                    _selectedProvider = config["Database:Provider"] ?? "Sqlite";
-                    _selectedConnectionString = config["Database:ConnectionString"] ?? "Data Source=H:\\++MyDir++\\++Dev\\+WthDS\\crm.db;Mode=ReadWriteCreate;Cache=Shared;";
+                    throw new InvalidOperationException("Провайдер не выбран. Сначала вызовите SetProvider().");
                 }
 
+                // Создаём контекст для выбранного провайдера
                 _currentDbContext = _selectedProvider.ToLower() switch
                 {
-                    "postgresql" or "postgres" or "npgsql" => new PostgreDbContext(_selectedConnectionString),
+                    "postgresql" or "postgres" or "npgsql" or "postgre" => new PostgreDbContext(_selectedConnectionString),
                     "sqlserver" => new SqlServerDbContext(_selectedConnectionString),
                     _ => new SqliteDbContext(_selectedConnectionString)
                 };
