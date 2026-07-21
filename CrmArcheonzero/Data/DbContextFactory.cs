@@ -16,14 +16,14 @@ namespace CrmArcheonzero.Data
 
         public static void SetProvider(string provider, string connectionString)
         {
-            // Ïðîâåðÿåì, ñóùåñòâóåò ëè ôàéë ÁÄ äëÿ SQLite
+            // ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼, ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚ Ð»Ð¸ Ñ„Ð°Ð¹Ð» Ð‘Ð” Ð´Ð»Ñ SQLite
             if (provider.ToLower() == "sqlite" && !string.IsNullOrEmpty(connectionString))
             {
                 var dbPath = connectionString.Replace("Data Source=", "").Split(';')[0];
                 if (!File.Exists(dbPath))
                 {
-                    var result = MessageBox.Show($"Áàçà äàííûõ ïî ïóòè {dbPath} íå íàéäåíà. Ñîçäàòü íîâóþ?",
-                        "Áàçà äàííûõ íå íàéäåíà", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    var result = MessageBox.Show($"Ð‘Ð°Ð·Ð° Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð¿Ð¾ Ð¿ÑƒÑ‚Ð¸ {dbPath} Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð°. Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ Ð½Ð¾Ð²ÑƒÑŽ?",
+                        "Ð‘Ð°Ð·Ð° Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð°", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (result == MessageBoxResult.No)
                         return;
                 }
@@ -36,7 +36,7 @@ namespace CrmArcheonzero.Data
 
         public static IDbContext GetDbContext()
         {
-            // Åñëè êîíòåêñò óæå ñîçäàí — âîçâðàùàåì åãî
+            // Ð•ÑÐ»Ð¸ ÐºÐ¾Ð½Ñ‚ÐµÐºÑÑ‚ ÑƒÐ¶Ðµ ÑÐ¾Ð·Ð´Ð°Ð½ â€” Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ ÐµÐ³Ð¾
             if (_currentDbContext != null)
                 return _currentDbContext;
 
@@ -45,13 +45,13 @@ namespace CrmArcheonzero.Data
                 if (_currentDbContext != null)
                     return _currentDbContext;
 
-                // Ïðîâåðÿåì, ÷òî ïðîâàéäåð óñòàíîâëåí
+                // ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼, Ñ‡Ñ‚Ð¾ Ð¿Ñ€Ð¾Ð²Ð°Ð¹Ð´ÐµÑ€ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½
                 if (string.IsNullOrEmpty(_selectedProvider))
                 {
-                    throw new InvalidOperationException("Ïðîâàéäåð íå âûáðàí. Ñíà÷àëà âûçîâèòå SetProvider().");
+                    throw new InvalidOperationException("ÐŸÑ€Ð¾Ð²Ð°Ð¹Ð´ÐµÑ€ Ð½Ðµ Ð²Ñ‹Ð±Ñ€Ð°Ð½. Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð²Ñ‹Ð·Ð¾Ð²Ð¸Ñ‚Ðµ SetProvider().");
                 }
 
-                // Ñîçäà¸ì êîíòåêñò äëÿ âûáðàííîãî ïðîâàéäåðà
+                // Ð¡Ð¾Ð·Ð´Ð°Ñ‘Ð¼ ÐºÐ¾Ð½Ñ‚ÐµÐºÑÑ‚ Ð´Ð»Ñ Ð²Ñ‹Ð±Ñ€Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð¿Ñ€Ð¾Ð²Ð°Ð¹Ð´ÐµÑ€Ð°
                 _currentDbContext = _selectedProvider.ToLower() switch
                 {
                     "postgresql" or "postgres" or "npgsql" or "postgre" => new PostgreDbContext(_selectedConnectionString),
