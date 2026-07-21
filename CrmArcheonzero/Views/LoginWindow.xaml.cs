@@ -29,6 +29,7 @@ namespace CrmArcheonzero.Views
 
                 DbContextFactory.SetProvider(provider, connectionString);
                 var context = DbContextFactory.GetDbContext();
+                _authService.SetContext(context);
 
                 _isConnected = true;
                 UsernameBox.IsEnabled = true;

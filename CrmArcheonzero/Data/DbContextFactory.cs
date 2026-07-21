@@ -36,23 +36,29 @@ namespace CrmArcheonzero.Data
 
         public static IDbContext GetDbContext()
         {
-            LoggerService.LogAction("DbContextFactory", $"GetDbContext вызван. Provider={_selectedProvider}, ConnectionString={_selectedConnectionString}");
-            // Если контекст уже создан — возвращаем его
             if (_currentDbContext != null)
                 return _currentDbContext;
+
+            LoggerService.LogAction("DbContextFactory", $"Создаём новый контекст для: {_selectedProvider}");
 
             lock (_lock)
             {
                 if (_currentDbContext != null)
                     return _currentDbContext;
 
-                // Проверяем, что провайдер установлен
                 if (string.IsNullOrEmpty(_selectedProvider))
                 {
-                    throw new InvalidOperationException("Провайдер не выбран. Сначала вызовите SetProvider().");
+                    // Если провайдер не выбран, читаем из appsettings.json
+                    var config = new ConfigurationBuilder()
+                        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                        .Build();
+
+                    _selectedProvider = config["Database:DefaultProvider"] ?? "Sqlite";
+                    _selectedConnectionString = config[$"Database:Providers:{_selectedProvider}:ConnectionString"];
                 }
 
-                // Создаём контекст для выбранного провайдера
+                // Создаём контекст
                 _currentDbContext = _selectedProvider.ToLower() switch
                 {
                     "postgresql" or "postgres" or "npgsql" or "postgre" => new PostgreDbContext(_selectedConnectionString),

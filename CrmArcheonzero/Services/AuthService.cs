@@ -19,22 +19,29 @@ namespace CrmArcheonzero.Services
         {
             // Контекст не создаётся здесь
         }
-
+        public void SetContext(IDbContext context)
+        {
+            _context = context;
+        }
         public AuthService(IDbContext context)
         {
             _context = context;
         }
 
-        public bool Login(string username, string password, string provider = "Sqlite")
+        // Основной метод — без значения по умолчанию
+        public bool Login(string username, string password, string provider)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                 return false;
 
             try
             {
-                var connectionString = GetConnectionString(provider);
-                DbContextFactory.SetProvider(provider, connectionString);
-                _context = DbContextFactory.GetDbContext();
+                if (_context == null)
+                {
+                    var connectionString = GetConnectionString(provider);
+                    DbContextFactory.SetProvider(provider, connectionString);
+                    _context = DbContextFactory.GetDbContext();
+                }
 
                 var user = ((DbContext)_context).Set<User>()
                     .FirstOrDefault(u => u.Username == username && u.IsActive);
@@ -69,29 +76,37 @@ namespace CrmArcheonzero.Services
             }
         }
 
-        public string GetConnectionString(string provider)
-        {
-            // Для PostgreSQL всегда возвращаем правильную строку
-            if (provider.ToLower() == "postgre" || provider.ToLower() == "postgresql" || provider.ToLower() == "npgsql" || provider.ToLower() == "postgres")
-            {
-                return "Host=aws-0-eu-west-1.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.qnlvugqiokfjcerpvobx;Password=qqRWeKgP6Aoibruz;SSL Mode=Disable;";
-            }
-            var config = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .Build();
-
-            return provider.ToLower() switch
-            {
-                "Postgre" or "postgresql" or "npgsql" or "postgres" => "Host=aws-0-eu-west-1.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.qnlvugqiokfjcerpvobx;Password=qqRWeKgP6Aoibruz;SSL Mode=Require;TrustServerCertificate=true;",
-                "sqlserver" => config["Database:Providers:SqlServer:ConnectionString"] ?? "Server=(localdb)\\mssqllocaldb;Database=CrmDb;Trusted_Connection=True;",
-                _ => config["Database:Providers:Sqlite:ConnectionString"] ?? "Data Source=crm.db"
-            };
-        }
-
+        // Обёртка с двумя параметрами
         public bool Login(string username, string password)
         {
             return Login(username, password, "Sqlite");
+        }
+
+        public string GetConnectionString(string provider)
+        {
+            var config = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            var result = provider.ToLower() switch
+            {
+                "postgre" or "postgresql" or "npgsql" or "postgres" => config["Database:Providers:PostgreSQL:ConnectionString"],
+                "sqlserver" => config["Database:Providers:SqlServer:ConnectionString"],
+                _ => config["Database:Providers:Sqlite:ConnectionString"]
+            };
+
+            // Логируем только если строка пустая или неожиданная
+            if (string.IsNullOrEmpty(result))
+            {
+                LoggerService.LogAction("AuthService", $"GetConnectionString({provider}) вернула пустую строку!");
+            }
+            else if (result.Contains("localhost") && provider != "sqlite")
+            {
+                LoggerService.LogAction("AuthService", $"GetConnectionString({provider}) вернула localhost: {result}");
+            }
+
+            return result;
         }
 
         public void Logout()
@@ -103,6 +118,8 @@ namespace CrmArcheonzero.Services
             _currentUser = null;
             DbContextFactory.ResetDbContext();
         }
+
+
 
         public User? GetCurrentUser() => _currentUser;
 
