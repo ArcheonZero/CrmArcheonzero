@@ -71,6 +71,11 @@ namespace CrmArcheonzero.Services
 
         public string GetConnectionString(string provider)
         {
+            // Для PostgreSQL всегда возвращаем правильную строку
+            if (provider.ToLower() == "postgre" || provider.ToLower() == "postgresql" || provider.ToLower() == "npgsql" || provider.ToLower() == "postgres")
+            {
+                return "Host=aws-0-eu-west-1.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.qnlvugqiokfjcerpvobx;Password=qqRWeKgP6Aoibruz;SSL Mode=Disable;";
+            }
             var config = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -78,7 +83,7 @@ namespace CrmArcheonzero.Services
 
             return provider.ToLower() switch
             {
-                "postgre" or "postgresql" or "npgsql" => config["Database:Providers:PostgreSQL:ConnectionString"] ?? "Host=localhost;Database=crmdb;Username=postgres;Password=postgres",
+                "Postgre" or "postgresql" or "npgsql" or "postgres" => "Host=aws-0-eu-west-1.pooler.supabase.com;Port=5432;Database=postgres;Username=postgres.qnlvugqiokfjcerpvobx;Password=qqRWeKgP6Aoibruz;SSL Mode=Require;TrustServerCertificate=true;",
                 "sqlserver" => config["Database:Providers:SqlServer:ConnectionString"] ?? "Server=(localdb)\\mssqllocaldb;Database=CrmDb;Trusted_Connection=True;",
                 _ => config["Database:Providers:Sqlite:ConnectionString"] ?? "Data Source=crm.db"
             };

@@ -17,7 +17,7 @@ namespace CrmArcheonzero.Data
         public DbSet<Note> Notes { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
-        public DbSet<AssignmentHistory> AssignmentHistories { get; set; } // НОВОЕ
+        public DbSet<AssignmentHistory> AssignmentHistories { get; set; }
 
         private readonly string _connectionString;
 
@@ -39,20 +39,13 @@ namespace CrmArcheonzero.Data
             // === НАСТРОЙКА ДЛЯ USER ===
             modelBuilder.Entity<User>(entity =>
             {
-                // Имя пользователя — уникальное
                 entity.HasIndex(u => u.Username).IsUnique();
-
-                // Роль — обязательная, по умолчанию "User"
                 entity.Property(e => e.Role)
                     .IsRequired()
                     .HasDefaultValue("User");
             });
 
             // === НАСТРОЙКА ДЛЯ CLIENT ===
-            modelBuilder.Entity<Client>()
-                .Property(c => c.Status)
-                .HasDefaultValue("Lead");
-            // === СУЩЕСТВУЮЩИЕ НАСТРОЙКИ ===
             modelBuilder.Entity<Client>()
                 .Property(c => c.Status)
                 .HasDefaultValue("Lead");
@@ -107,7 +100,7 @@ namespace CrmArcheonzero.Data
                 .HasIndex(t => t.IsCompleted)
                 .HasDatabaseName("IX_Tasks_IsCompleted");
 
-            // === НОВЫЕ НАСТРОЙКИ ДЛЯ AssignmentHistory ===
+            // === НАСТРОЙКИ ДЛЯ AssignmentHistory ===
             modelBuilder.Entity<AssignmentHistory>()
                 .HasOne(ah => ah.Client)
                 .WithMany()
@@ -131,6 +124,7 @@ namespace CrmArcheonzero.Data
                 .WithMany()
                 .HasForeignKey(ah => ah.AssignedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<ChatMessage>(entity =>
             {
                 entity.HasKey(m => m.Id);
@@ -157,94 +151,115 @@ namespace CrmArcheonzero.Data
 
         public void EnsureSeedData()
         {
-            if (Users.Any()) return;
-
-            var admin = new User
+            try
             {
-                Username = "admin",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
-                Email = "admin@crm.com",
-                FullName = "Администратор",
-                Role = "Admin",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
-            Users.Add(admin);
-            // === ДОБАВЛЯЕМ ТЕСТОВЫХ ПОЛЬЗОВАТЕЛЕЙ ===
-            var manager = new User
-            {
-                Username = "manager",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("manager123"),
-                Email = "manager@crm.com",
-                FullName = "Менеджер",
-                Role = "Manager",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
-            Users.Add(manager);
+                // Проверяем существование таблицы Users в SQLite
+                var tableExists = Database.ExecuteSqlRaw(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='Users';"
+                ) != null;
 
-            var super = new User
-            {
-                Username = "super",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("super123"),
-                Email = "super@crm.com",
-                FullName = "Super менеджер",
-                Role = "SuperManager",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
-            Users.Add(super);
-
-            var user = new User
-            {
-                Username = "user",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("user123"),
-                Email = "user@crm.com",
-                FullName = "Пользователь",
-                Role = "User",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
-            Users.Add(user);
-
-            SaveChanges();
-
-            if (Clients.Any()) return;
-
-            var clients = new List<Client>
-            {
-                new Client
+                if (!tableExists)
                 {
-                    Name = "Иван Петров",
-                    Phone = "+7 (912) 345-67-89",
-                    Email = "ivan@mail.ru",
-                    Status = "Active",
-                    Company = "ООО ТехноСервис",
-                    CreatedAt = DateTime.UtcNow.AddDays(-30),
-                    Birthday = new DateTime(1985, 5, 15)
-                },
-                new Client
-                {
-                    Name = "Мария Сидорова",
-                    Phone = "+7 (903) 222-33-44",
-                    Email = "maria@yandex.ru",
-                    Status = "Lead",
-                    Company = "ИП Сидорова",
-                    CreatedAt = DateTime.UtcNow.AddDays(-15)
-                },
-                new Client
-                {
-                    Name = "Алексей Иванов",
-                    Phone = "+7 (911) 555-66-77",
-                    Email = "alex@google.com",
-                    Status = "Inactive",
-                    Company = "ООО Альфа",
-                    CreatedAt = DateTime.UtcNow.AddDays(-60)
+                    Database.EnsureCreated();
                 }
-            };
 
-            Clients.AddRange(clients);
-            SaveChanges();
+                if (Users.Any()) return;
+
+                var admin = new User
+                {
+                    Username = "admin",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                    Email = "admin@crm.com",
+                    FullName = "Администратор",
+                    Role = "Admin",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                Users.Add(admin);
+
+                var manager = new User
+                {
+                    Username = "manager",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("manager123"),
+                    Email = "manager@crm.com",
+                    FullName = "Менеджер",
+                    Role = "Manager",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                Users.Add(manager);
+
+                var super = new User
+                {
+                    Username = "super",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("super123"),
+                    Email = "super@crm.com",
+                    FullName = "Super менеджер",
+                    Role = "SuperManager",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                Users.Add(super);
+
+                var user = new User
+                {
+                    Username = "user",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("user123"),
+                    Email = "user@crm.com",
+                    FullName = "Пользователь",
+                    Role = "User",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                Users.Add(user);
+
+                SaveChanges();
+
+                if (Clients.Any()) return;
+
+                var clients = new List<Client>
+                {
+                    new Client
+                    {
+                        Name = "Иван Петров",
+                        Phone = "+7 (912) 345-67-89",
+                        Email = "ivan@mail.ru",
+                        Status = "Active",
+                        Company = "ООО ТехноСервис",
+                        CreatedAt = DateTime.UtcNow.AddDays(-30),
+                        Birthday = new DateTime(1985, 5, 15),
+                        AssignedUserId = admin.Id
+                    },
+                    new Client
+                    {
+                        Name = "Мария Сидорова",
+                        Phone = "+7 (903) 222-33-44",
+                        Email = "maria@yandex.ru",
+                        Status = "Lead",
+                        Company = "ИП Сидорова",
+                        CreatedAt = DateTime.UtcNow.AddDays(-15),
+                        AssignedUserId = manager.Id
+                    },
+                    new Client
+                    {
+                        Name = "Алексей Иванов",
+                        Phone = "+7 (911) 555-66-77",
+                        Email = "alex@google.com",
+                        Status = "Inactive",
+                        Company = "ООО Альфа",
+                        CreatedAt = DateTime.UtcNow.AddDays(-60),
+                        AssignedUserId = super.Id
+                    }
+                };
+
+                Clients.AddRange(clients);
+                SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "SqliteDbContext.EnsureSeedData");
+                throw;
+            }
         }
     }
 }

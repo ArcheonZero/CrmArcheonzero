@@ -36,6 +36,7 @@ namespace CrmArcheonzero.Data
 
         public static IDbContext GetDbContext()
         {
+            LoggerService.LogAction("DbContextFactory", $"GetDbContext вызван. Provider={_selectedProvider}, ConnectionString={_selectedConnectionString}");
             // Если контекст уже создан — возвращаем его
             if (_currentDbContext != null)
                 return _currentDbContext;

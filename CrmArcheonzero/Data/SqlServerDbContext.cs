@@ -2,7 +2,7 @@ using CrmArcheonzero.Models;
 using CrmArcheonzero.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CrmArcheonzero.Data
@@ -11,11 +11,11 @@ namespace CrmArcheonzero.Data
     {
         public DbSet<Client> Clients { get; set; }
         public DbSet<Interaction> Interactions { get; set; }
-        public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ClientTask> Tasks { get; set; }
         public DbSet<Note> Notes { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<AssignmentHistory> AssignmentHistories { get; set; } // НОВОЕ
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<AssignmentHistory> AssignmentHistories { get; set; }
 
         private readonly string _connectionString;
 
@@ -34,7 +34,16 @@ namespace CrmArcheonzero.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // === СУЩЕСТВУЮЩИЕ НАСТРОЙКИ ===
+            // === НАСТРОЙКА ДЛЯ USER ===
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(u => u.Username).IsUnique();
+                entity.Property(e => e.Role)
+                    .IsRequired()
+                    .HasDefaultValue("User");
+            });
+
+            // === НАСТРОЙКА ДЛЯ CLIENT ===
             modelBuilder.Entity<Client>()
                 .Property(c => c.Status)
                 .HasDefaultValue("Lead");
@@ -59,6 +68,12 @@ namespace CrmArcheonzero.Data
                 .HasIndex(u => u.Username)
                 .IsUnique();
 
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.AssignedClients)
+                .WithOne(c => c.AssignedUser)
+                .HasForeignKey(c => c.AssignedUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<Client>()
                 .HasIndex(c => c.Name)
                 .HasDatabaseName("IX_Clients_Name");
@@ -68,10 +83,22 @@ namespace CrmArcheonzero.Data
                 .HasDatabaseName("IX_Clients_Email");
 
             modelBuilder.Entity<Client>()
+                .HasIndex(c => c.Phone)
+                .HasDatabaseName("IX_Clients_Phone");
+
+            modelBuilder.Entity<Client>()
                 .HasIndex(c => c.Status)
                 .HasDatabaseName("IX_Clients_Status");
 
-            // === НОВЫЕ НАСТРОЙКИ ДЛЯ AssignmentHistory ===
+            modelBuilder.Entity<ClientTask>()
+                .HasIndex(t => t.DueDate)
+                .HasDatabaseName("IX_Tasks_DueDate");
+
+            modelBuilder.Entity<ClientTask>()
+                .HasIndex(t => t.IsCompleted)
+                .HasDatabaseName("IX_Tasks_IsCompleted");
+
+            // === НАСТРОЙКИ ДЛЯ AssignmentHistory ===
             modelBuilder.Entity<AssignmentHistory>()
                 .HasOne(ah => ah.Client)
                 .WithMany()
@@ -95,6 +122,7 @@ namespace CrmArcheonzero.Data
                 .WithMany()
                 .HasForeignKey(ah => ah.AssignedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<ChatMessage>(entity =>
             {
                 entity.HasKey(m => m.Id);
@@ -108,34 +136,130 @@ namespace CrmArcheonzero.Data
 
         public void EnsureDatabaseCreated()
         {
-            var dbPath = Database.GetDbConnection().DataSource;
-            if (File.Exists(dbPath))
+            try
             {
-                LoggerService.LogAction("SqliteDbContext", $"База данных уже существует: {dbPath}");
-                return;
+                Database.OpenConnection();
+                Database.CloseConnection();
+                LoggerService.LogAction("SqlServerDbContext", "Подключение к SQL Server установлено.");
             }
-
-            LoggerService.LogAction("SqliteDbContext", $"База данных не найдена. Создаём новую: {dbPath}");
-            Database.EnsureCreated();
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "SqlServerDbContext.EnsureDatabaseCreated");
+                throw;
+            }
         }
 
         public void EnsureSeedData()
         {
-            if (Users.Any()) return;
-
-            var admin = new User
+            try
             {
-                Username = "admin",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
-                Email = "admin@crm.com",
-                FullName = "Администратор",
-                Role = "Admin",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
+                // Проверяем существование таблицы Users в SQL Server
+                var tableExists = Database.ExecuteSqlRaw(
+                    "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Users';"
+                ) > 0;
 
-            Users.Add(admin);
-            SaveChanges();
+                if (!tableExists)
+                {
+                    Database.EnsureCreated();
+                }
+
+                if (Users.Any()) return;
+
+                var admin = new User
+                {
+                    Username = "admin",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                    Email = "admin@crm.com",
+                    FullName = "Администратор",
+                    Role = "Admin",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                Users.Add(admin);
+
+                var manager = new User
+                {
+                    Username = "manager",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("manager123"),
+                    Email = "manager@crm.com",
+                    FullName = "Менеджер",
+                    Role = "Manager",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                Users.Add(manager);
+
+                var super = new User
+                {
+                    Username = "super",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("super123"),
+                    Email = "super@crm.com",
+                    FullName = "Super менеджер",
+                    Role = "SuperManager",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                Users.Add(super);
+
+                var user = new User
+                {
+                    Username = "user",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("user123"),
+                    Email = "user@crm.com",
+                    FullName = "Пользователь",
+                    Role = "User",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                Users.Add(user);
+
+                SaveChanges();
+
+                if (Clients.Any()) return;
+
+                var clients = new List<Client>
+                {
+                    new Client
+                    {
+                        Name = "Иван Петров",
+                        Phone = "+7 (912) 345-67-89",
+                        Email = "ivan@mail.ru",
+                        Status = "Active",
+                        Company = "ООО ТехноСервис",
+                        CreatedAt = DateTime.UtcNow.AddDays(-30),
+                        Birthday = new DateTime(1985, 5, 15),
+                        AssignedUserId = admin.Id
+                    },
+                    new Client
+                    {
+                        Name = "Мария Сидорова",
+                        Phone = "+7 (903) 222-33-44",
+                        Email = "maria@yandex.ru",
+                        Status = "Lead",
+                        Company = "ИП Сидорова",
+                        CreatedAt = DateTime.UtcNow.AddDays(-15),
+                        AssignedUserId = manager.Id
+                    },
+                    new Client
+                    {
+                        Name = "Алексей Иванов",
+                        Phone = "+7 (911) 555-66-77",
+                        Email = "alex@google.com",
+                        Status = "Inactive",
+                        Company = "ООО Альфа",
+                        CreatedAt = DateTime.UtcNow.AddDays(-60),
+                        AssignedUserId = super.Id
+                    }
+                };
+
+                Clients.AddRange(clients);
+                SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "SqlServerDbContext.EnsureSeedData");
+                throw;
+            }
         }
     }
 }

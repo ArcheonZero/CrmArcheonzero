@@ -1,10 +1,12 @@
 using CrmArcheonzero.Models;
 using CrmArcheonzero.Services;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows;
 
 namespace CrmArcheonzero.Data
 {
@@ -23,6 +25,7 @@ namespace CrmArcheonzero.Data
         public PostgreDbContext(string connectionString)
         {
             _connectionString = connectionString;
+            LoggerService.LogAction("PostgreDbContext", $"Создан контекст с строкой: {_connectionString}");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -138,22 +141,45 @@ namespace CrmArcheonzero.Data
 
         public void EnsureDatabaseCreated()
         {
-            var dbPath = Database.GetDbConnection().DataSource;
-            if (File.Exists(dbPath))
+            try
             {
-                LoggerService.LogAction("SqliteDbContext", $"База данных уже существует: {dbPath}");
-                return;
+                Database.OpenConnection();
+                Database.CloseConnection();
+                LoggerService.LogAction("PostgreDbContext", "Подключение к PostgreSQL установлено.");
             }
-
-            LoggerService.LogAction("SqliteDbContext", $"База данных не найдена. Создаём новую: {dbPath}");
-            Database.EnsureCreated();
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "PostgreDbContext.EnsureDatabaseCreated");
+                MessageBox.Show(
+                    "Не удалось подключиться к базе данных PostgreSQL.\n" +
+                    "Проверьте настройки подключения или обратитесь к администратору.\n" +
+                    $"Ошибка: {ex.Message}",
+                    "Ошибка подключения",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+                throw;
+            }
         }
 
         public void EnsureSeedData()
         {
-            // === ПОЛЬЗОВАТЕЛИ (добавляем только если их нет) ===
-            if (!Users.Any(u => u.Username == "admin"))
+            try
             {
+                // Проверяем, есть ли таблица Users
+                var tableExists = Database.ExecuteSqlRaw(
+                    "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'Users');"
+                ) > 0;
+
+                if (!tableExists)
+                {
+                    // Если таблиц нет — создаём через EnsureCreated
+                    Database.EnsureCreated();
+                }
+
+                // Если пользователи уже есть — ничего не делаем
+                if (Users.Any()) return;
+
                 var admin = new User
                 {
                     Username = "admin",
@@ -165,10 +191,7 @@ namespace CrmArcheonzero.Data
                     CreatedAt = DateTime.UtcNow
                 };
                 Users.Add(admin);
-            }
 
-            if (!Users.Any(u => u.Username == "manager"))
-            {
                 var manager = new User
                 {
                     Username = "manager",
@@ -180,10 +203,7 @@ namespace CrmArcheonzero.Data
                     CreatedAt = DateTime.UtcNow
                 };
                 Users.Add(manager);
-            }
 
-            if (!Users.Any(u => u.Username == "super"))
-            {
                 var super = new User
                 {
                     Username = "super",
@@ -195,10 +215,7 @@ namespace CrmArcheonzero.Data
                     CreatedAt = DateTime.UtcNow
                 };
                 Users.Add(super);
-            }
 
-            if (!Users.Any(u => u.Username == "user"))
-            {
                 var user = new User
                 {
                     Username = "user",
@@ -210,47 +227,55 @@ namespace CrmArcheonzero.Data
                     CreatedAt = DateTime.UtcNow
                 };
                 Users.Add(user);
+
+                SaveChanges();
+
+                // Если клиенты уже есть — ничего не делаем
+                if (Clients.Any()) return;
+
+                var clients = new List<Client>
+        {
+            new Client
+            {
+                Name = "Иван Петров",
+                Phone = "+7 (912) 345-67-89",
+                Email = "ivan@mail.ru",
+                Status = "Active",
+                Company = "ООО ТехноСервис",
+                CreatedAt = DateTime.UtcNow.AddDays(-30),
+                Birthday = new DateTime(1985, 5, 15),
+                AssignedUserId = admin.Id
+            },
+            new Client
+            {
+                Name = "Мария Сидорова",
+                Phone = "+7 (903) 222-33-44",
+                Email = "maria@yandex.ru",
+                Status = "Lead",
+                Company = "ИП Сидорова",
+                CreatedAt = DateTime.UtcNow.AddDays(-15),
+                AssignedUserId = manager.Id
+            },
+            new Client
+            {
+                Name = "Алексей Иванов",
+                Phone = "+7 (911) 555-66-77",
+                Email = "alex@google.com",
+                Status = "Inactive",
+                Company = "ООО Альфа",
+                CreatedAt = DateTime.UtcNow.AddDays(-60),
+                AssignedUserId = super.Id
             }
+        };
 
-            SaveChanges();
-
-            // === КЛИЕНТЫ (добавляем только если их нет) ===
-            if (Clients.Any()) return;
-
-            var clients = new List<Client>
-    {
-        new Client
-        {
-            Name = "Иван Петров",
-            Phone = "+7 (912) 345-67-89",
-            Email = "ivan@mail.ru",
-            Status = "Active",
-            Company = "ООО ТехноСервис",
-            CreatedAt = DateTime.UtcNow.AddDays(-30),
-            Birthday = new DateTime(1985, 5, 15)
-        },
-        new Client
-        {
-            Name = "Мария Сидорова",
-            Phone = "+7 (903) 222-33-44",
-            Email = "maria@yandex.ru",
-            Status = "Lead",
-            Company = "ИП Сидорова",
-            CreatedAt = DateTime.UtcNow.AddDays(-15)
-        },
-        new Client
-        {
-            Name = "Алексей Иванов",
-            Phone = "+7 (911) 555-66-77",
-            Email = "alex@google.com",
-            Status = "Inactive",
-            Company = "ООО Альфа",
-            CreatedAt = DateTime.UtcNow.AddDays(-60)
-        }
-    };
-
-            Clients.AddRange(clients);
-            SaveChanges();
+                Clients.AddRange(clients);
+                SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "PostgreDbContext.EnsureSeedData");
+                throw;
+            }
         }
     }
 }
