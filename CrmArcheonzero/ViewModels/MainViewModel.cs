@@ -10,6 +10,7 @@ using LiveCharts.Wpf;
 using CrmArcheonzero.Models;
 using CrmArcheonzero.Services;
 using System.Linq;
+using System.Windows.Controls;
 
 namespace CrmArcheonzero.ViewModels
 {
@@ -24,7 +25,10 @@ namespace CrmArcheonzero.ViewModels
         private readonly EmailService? _emailService;
         private readonly TelegramService? _telegramService;
         private readonly CloudStorageService? _cloudStorage;
-
+        private int _activeCount;
+        private int _leadCount;
+        private int _inactiveCount;
+        private bool _showMyClientsOnly;
         // ============================================================
         // СОСТОЯНИЕ
         // ============================================================
@@ -49,7 +53,7 @@ namespace CrmArcheonzero.ViewModels
         private string _newInteractionDesc = "";
         private ObservableCollection<User> _users = new();
         private ObservableCollection<Client> _deletedClients = new();
-
+        private SeriesCollection? _chartSeries;
         // ============================================================
         // СВОЙСТВА
         // ============================================================
@@ -113,6 +117,34 @@ namespace CrmArcheonzero.ViewModels
             }
         }
 
+        public bool ShowMyClientsOnly
+        {
+            get => _showMyClientsOnly;
+            set
+            {
+                _showMyClientsOnly = value;
+                OnPropertyChanged();
+                ApplyFilter(); // Применяем фильтр при изменении
+            }
+        }
+
+        public int ActiveCount
+        {
+            get => _activeCount;
+            set { _activeCount = value; OnPropertyChanged(); }
+        }
+
+        public int LeadCount
+        {
+            get => _leadCount;
+            set { _leadCount = value; OnPropertyChanged(); }
+        }
+
+        public int InactiveCount
+        {
+            get => _inactiveCount;
+            set { _inactiveCount = value; OnPropertyChanged(); }
+        }
         public string SearchText
         {
             get => _searchText;
@@ -237,14 +269,35 @@ namespace CrmArcheonzero.ViewModels
             set { _users = value; OnPropertyChanged(); }
         }
 
-        public SeriesCollection? ChartSeries { get; set; }
+
+        public SeriesCollection? ChartSeries
+        {
+
+            get => _chartSeries;
+            set
+            {
+                _chartSeries = value;
+                OnPropertyChanged();
+                LoggerService.LogAction("ChartSeries", $"setter вызван, Values={value?.Count}");
+            }
+        }
         public string[]? ChartLabels { get; set; }
         public Func<double, string>? ChartFormatter { get; set; }
 
         // ============================================================
         // ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
         // ============================================================
-
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.Source is TabControl tabControl)
+            {
+                switch (tabControl.SelectedIndex)
+                {
+                    case 1: LoadDashboard(); break; // Вкладка "Дашборд"
+                    case 2: LoadDetails(); break;   // Вкладка "Детали"
+                }
+            }
+        }
         private void LoadDashboard() { }
         private void LoadDetails() { }
         private void ReassignClient()

@@ -13,8 +13,30 @@ namespace CrmArcheonzero
 
         public MainWindow()
         {
-            InitializeComponent();
-            _authService = new AuthService();
+            try
+            {
+                InitializeComponent();
+                _authService = new AuthService();
+                this.Loaded += MainWindow_Loaded;
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "MainWindow.Constructor");
+                MessageBox.Show($"Ошибка при загрузке окна: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Здесь можно добавить логику, которая выполняется после загрузки окна
+                LoggerService.LogAction("MainWindow", "Окно загружено");
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "MainWindow.Loaded");
+            }
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)

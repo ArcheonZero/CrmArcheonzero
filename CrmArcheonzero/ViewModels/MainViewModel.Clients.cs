@@ -25,7 +25,7 @@ namespace CrmArcheonzero.ViewModels
             {
                 var list = await _clientService.GetAllAsync(false);
                 Clients = new ObservableCollection<Client>(list);
-                ApplyFilter();
+                ApplyFilter(); // <-- добавить, если ещё нет
                 UpdateChart();
                 LoadUsers();
             }
@@ -68,11 +68,25 @@ namespace CrmArcheonzero.ViewModels
 
         private void ApplyFilter()
         {
-            if (!IsAuthenticated || StatusFilter == "Все" || Clients == null) return;
+            if (!IsAuthenticated || Clients == null) return;
+
             try
             {
-                var filtered = _clientService.ApplyFilter(_clientService.GetAll(false), StatusFilter);
-                Clients = new ObservableCollection<Client>(filtered);
+                var all = _clientService.GetAll(false);
+
+                // Фильтр по статусу
+                if (StatusFilter != "Все")
+                {
+                    all = _clientService.ApplyFilter(all, StatusFilter);
+                }
+
+                // Фильтр "Мои клиенты"
+                if (ShowMyClientsOnly && CurrentUser != null)
+                {
+                    all = all.Where(c => c.AssignedUserId == CurrentUser.Id).ToList();
+                }
+
+                Clients = new ObservableCollection<Client>(all);
             }
             catch (Exception ex)
             {
@@ -86,11 +100,25 @@ namespace CrmArcheonzero.ViewModels
             try
             {
                 var stats = _clientService.GetStatistics(false);
-                if (ChartSeries != null && ChartSeries.Count > 0)
-                {
-                    var series = (ColumnSeries)ChartSeries[0];
-                    series.Values = new ChartValues<int> { stats["Active"], stats["Inactive"], stats["Lead"] };
-                }
+                LoggerService.LogAction("UpdateChart", $"Stats: Total={stats["Total"]}, Active={stats["Active"]}, Inactive={stats["Inactive"]}, Lead={stats["Lead"]}");
+                // Обновляем цифры
+                ActiveCount = stats["Active"];
+                LeadCount = stats["Lead"];
+                InactiveCount = stats["Inactive"];
+
+                // === ГЛАВНОЕ ИЗМЕНЕНИЕ ===
+                // Создаём НОВЫЙ SeriesCollection вместо изменения существующего
+                ChartSeries = new SeriesCollection
+        {
+            new ColumnSeries
+            {
+                Title = "Клиенты",
+                Values = new ChartValues<int> { stats["Active"], stats["Inactive"], stats["Lead"] }
+            }
+        };
+
+                // Обновляем подписи осей (если они не заданы)
+                ChartLabels = new[] { "Active", "Inactive", "Lead" };
             }
             catch (Exception ex)
             {
@@ -255,7 +283,11 @@ namespace CrmArcheonzero.ViewModels
                         LoadClients();
                         return;
                     }
-
+                    if (!IsAdmin && existing.AssignedUserId != _userService.GetCurrentUser()?.Id)
+                    {
+                        MessageBox.Show("Вы можете редактировать только своих клиентов.", "Доступ запрещён", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
                     existing.Name = EditableClient.Name;
                     existing.Phone = EditableClient.Phone;
                     existing.Email = EditableClient.Email;
