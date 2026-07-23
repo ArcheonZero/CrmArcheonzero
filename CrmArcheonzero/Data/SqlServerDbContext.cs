@@ -28,7 +28,10 @@ namespace CrmArcheonzero.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(_connectionString);
+                optionsBuilder.UseSqlServer(_connectionString, options =>
+                {
+                    options.EnableRetryOnFailure();
+                });
             }
         }
 
