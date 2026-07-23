@@ -488,8 +488,9 @@ ArcheonZero
 CRM Archeonzero
 ---
 # CRM Archeonzero
-**Version 2.0.2** — a full-featured desktop system for managing clients, tasks, and interactions, built on WPF and MVVM with support for multiple databases.
-#📋 About the Project
+**Version 2.0.2** — a full-featured desktop system for managing clients, tasks, and interactions, built on WPF and MVVM with support for multiple databases.   
+
+##📋 About the Project
 
 CRM Archeonzero is a small-to-medium business application that allows you to manage clients, tasks, notes, and interaction history, as well as send notifications via Email and Telegram.
 
@@ -508,6 +509,8 @@ The project is built on principles of modularity and clean code. The core techno
     Multi-database support: SQLite (embedded), PostgreSQL (cloud/local), SQL Server.
 
 ##⚡ Key Features
+
+
 ###🔐 Authentication and Roles
 
     Login / Logout, password change.
