@@ -1,6 +1,5 @@
 using CrmArcheonzero.DTO;
 using CrmArcheonzero.Models;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Magicodes.ExporterAndImporter.Csv;
 using Magicodes.ExporterAndImporter.Excel;
 using QuestPDF.Fluent;
@@ -12,7 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using Wordroller;
+using Xceed.Words.NET;
 
 namespace CrmArcheonzero.Services
 {
@@ -54,6 +53,70 @@ namespace CrmArcheonzero.Services
             return Encoding.UTF8.GetBytes(sb.ToString());
         }
 
+
+
+        public byte[] ExportClientToDocx(Client client)
+        {
+            using var stream = new MemoryStream();
+            using var doc = DocX.Create(stream);
+
+            // Заголовок
+            var title = doc.InsertParagraph($"Карточка клиента: {client.Name}")
+                .FontSize(18)
+                .Bold()
+                .Color(System.Drawing.Color.FromArgb(42, 59, 140));
+
+            // Основная информация
+            doc.InsertParagraph($"ID: {client.Id}");
+            doc.InsertParagraph($"Имя: {client.Name}");
+            doc.InsertParagraph($"Телефон: {client.Phone}");
+            doc.InsertParagraph($"Email: {client.Email}");
+            doc.InsertParagraph($"Компания: {client.Company}");
+            doc.InsertParagraph($"Должность: {client.Position}");
+            doc.InsertParagraph($"Статус: {client.Status}");
+            doc.InsertParagraph($"Источник: {client.Source}");
+            doc.InsertParagraph($"Теги: {client.Tags}");
+            doc.InsertParagraph($"Дата создания: {client.CreatedAt:dd.MM.yyyy}");
+            doc.InsertParagraph($"Дата рождения: {client.Birthday?.ToString("dd.MM.yyyy")}");
+            doc.InsertParagraph($"Последний контакт: {client.LastContact?.ToString("dd.MM.yyyy")}");
+            doc.InsertParagraph($"Ответственный: {client.AssignedUser?.FullName}");
+            doc.InsertParagraph($"Адрес: {client.Address}");
+            doc.InsertParagraph($"Примечания: {client.Notes}");
+
+            // Взаимодействия
+            if (client.Interactions != null && client.Interactions.Any())
+            {
+                doc.InsertParagraph("Взаимодействия").Bold().FontSize(14);
+                foreach (var i in client.Interactions.OrderByDescending(i => i.Date))
+                {
+                    doc.InsertParagraph($"- {i.Date:dd.MM.yyyy HH:mm} — {i.Type}: {i.Description}");
+                }
+            }
+
+            // Задачи
+            if (client.Tasks != null && client.Tasks.Any())
+            {
+                doc.InsertParagraph("Задачи").Bold().FontSize(14);
+                foreach (var t in client.Tasks.OrderBy(t => t.DueDate))
+                {
+                    var status = t.IsCompleted ? "✅ Выполнена" : "⏳ В работе";
+                    doc.InsertParagraph($"- {t.Title} (до {t.DueDate:dd.MM.yyyy}) — {status}");
+                }
+            }
+
+            // Заметки
+            if (client.ClientNotes != null && client.ClientNotes.Any())
+            {
+                doc.InsertParagraph("Заметки").Bold().FontSize(14);
+                foreach (var n in client.ClientNotes.OrderByDescending(n => n.CreatedAt))
+                {
+                    doc.InsertParagraph($"- {n.CreatedAt:dd.MM.yyyy HH:mm} — {n.Content}");
+                }
+            }
+
+            doc.Save();
+            return stream.ToArray();
+        }
         // ============================================================
         // ЭКСПОРТ КАРТОЧКИ (PDF / Word)
         // ============================================================
@@ -225,9 +288,9 @@ namespace CrmArcheonzero.Services
                 throw;
             }
 
-                
-            
-            
+
+
+
         }
 
         private void AddRow(TableDescriptor table, string label, string? value)

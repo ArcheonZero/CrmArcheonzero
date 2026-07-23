@@ -112,7 +112,13 @@ namespace CrmArcheonzero.ViewModels
             {
                 IsLoading = true;
                 var exportService = new ExportService();
-
+                // Загружаем клиента со всеми связанными данными
+                var clientWithDetails = _clientService.GetById(SelectedClient.Id);
+                if (clientWithDetails == null)
+                {
+                    MessageBox.Show("Клиент не найден", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
                 byte[] fileBytes;
                 string extension;
 
@@ -123,9 +129,8 @@ namespace CrmArcheonzero.ViewModels
                 }
                 else if (format.ToLower() == "word")
                 {
-                    // Word пока не реализован
-                    MessageBox.Show("Экспорт в Word пока не реализован.");
-                    return;
+                    fileBytes = exportService.ExportClientToDocx(SelectedClient);
+                    extension = "docx";
                 }
                 else
                 {

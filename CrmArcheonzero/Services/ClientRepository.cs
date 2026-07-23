@@ -88,7 +88,14 @@ namespace CrmArcheonzero.Services
 
             return query.FirstOrDefault(c => c.Id == id);
         }
-
+        public Client GetById(int id)
+        {
+            return _context.Clients
+                .Include(c => c.Interactions)
+                .Include(c => c.Tasks)
+                .Include(c => c.ClientNotes)
+                .FirstOrDefault(c => c.Id == id);
+        }
         public void Add(Client client)
         {
             ((DbContext)Context).Set<Client>().Add(client);

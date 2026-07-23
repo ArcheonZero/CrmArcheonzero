@@ -24,6 +24,7 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="DocX" Version="2.1.0" />
 		<PackageReference Include="DS.Documents.Word" Version="7.2.6" />
 		<PackageReference Include="DS.Documents.Word.Layout" Version="7.2.6" />
 		<PackageReference Include="FluentAssertions" Version="6.12.0" />

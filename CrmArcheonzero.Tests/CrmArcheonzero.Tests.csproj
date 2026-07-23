@@ -11,6 +11,7 @@
     <PackageReference Include="Azure.Identity" Version="1.6.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.3.1" />
+    <PackageReference Include="DocX" Version="2.1.0" />
     <PackageReference Include="DS.Documents.Word" Version="7.2.6" />
     <PackageReference Include="DS.Documents.Word.Layout" Version="7.2.6" />
     <PackageReference Include="EPPlus" Version="6.2.10" />
