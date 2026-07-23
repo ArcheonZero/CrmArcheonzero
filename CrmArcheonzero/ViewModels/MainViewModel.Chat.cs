@@ -42,14 +42,18 @@ public ChatService ChatService
 
         private void InitializeChatCommands()
         {
+            LoggerService.LogAction("Chat", "InitializeChatCommands вызван");
             SendChatMessageCommand = new RelayCommand(SendChatMessage, () => IsAuthenticated);
+            LoggerService.LogAction("Chat", $"SendChatMessageCommand инициализирован: {(SendChatMessageCommand != null ? "успешно" : "ошибка")}");
         }
 
         private void LoadChatMessages()
         {
+            if (!IsAuthenticated) return;
+
             try
             {
-                var messages = _chatService.GetMessages(50);
+                var messages = ChatService.GetMessages(50);
                 ChatMessages = new ObservableCollection<ChatMessage>(messages);
             }
             catch (Exception ex)
@@ -67,7 +71,7 @@ public ChatService ChatService
 
             try
             {
-                _chatService.SendMessage(user.Id, user.FullName, NewChatMessage);
+                ChatService.SendMessage(user.Id, user.FullName, NewChatMessage);
                 NewChatMessage = "";
                 LoadChatMessages();
             }

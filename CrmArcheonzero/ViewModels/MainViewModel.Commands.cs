@@ -1,3 +1,4 @@
+using CrmArcheonzero.Services;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
@@ -52,6 +53,7 @@ namespace CrmArcheonzero.ViewModels
 
         private void InitializeCommands()
         {
+            LoggerService.LogAction("InitializeCommands", "Начало");
             AddCommand = new RelayCommand(AddClient, () => IsAuthenticated);
             SaveCommand = new RelayCommand(SaveClient, () => IsAuthenticated && IsEditMode);
             DeleteCommand = new RelayCommand(DeleteClient, () => IsAuthenticated && SelectedClient != null);
@@ -86,6 +88,9 @@ namespace CrmArcheonzero.ViewModels
 
             ExportCommand = new RelayCommand(Export, () => IsAuthenticated);
             ExportCardCommand = new RelayCommand<string>(ExportCard, CanExportCard);
+            LoggerService.LogAction("InitializeCommands", "Основные команды инициализированы");
+            InitializeChatCommands();
+            LoggerService.LogAction("InitializeCommands", "Конец");
         }
 
         // ============================================================

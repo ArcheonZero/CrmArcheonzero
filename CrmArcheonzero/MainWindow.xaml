@@ -5,7 +5,7 @@
         xmlns:views="clr-namespace:CrmArcheonzero.Views"
         xmlns:controls="clr-namespace:CrmArcheonzero.Views.Controls"
         xmlns:vm="clr-namespace:CrmArcheonzero.ViewModels"
-        Title="CRM Archeonzero v2.0.1" 
+        Title="CRM Archeonzero v2.0.2" 
         Height="800" Width="1200"
         WindowStartupLocation="CenterScreen"
         Background="#F9FAFB"
@@ -532,11 +532,7 @@
             <!-- ЧАТ -->
             <TabItem Header="💬 Чат" 
          Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}">
-                <TabItem.ContentTemplate>
-                    <DataTemplate>
-                        <controls:ChatView />
-                    </DataTemplate>
-                </TabItem.ContentTemplate>
+                <controls:ChatView DataContext="{Binding}" />
             </TabItem>
 
         </TabControl>
@@ -570,7 +566,7 @@
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <TextBlock Text="CRM Archeonzero v2.0.1" Foreground="{StaticResource AccentGold}" FontSize="11"/>
+                <TextBlock Text="CRM Archeonzero v2.0.2" Foreground="{StaticResource AccentGold}" FontSize="11"/>
             </StatusBarItem>
         </StatusBar>
 
