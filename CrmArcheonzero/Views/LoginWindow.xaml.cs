@@ -1,5 +1,7 @@
 using System;
 using System.Windows;
+using System.Windows.Controls;
+using CrmArcheonzero.Data;
 using CrmArcheonzero.Services;
 
 namespace CrmArcheonzero.Views
@@ -15,28 +17,47 @@ namespace CrmArcheonzero.Views
 
             UsernameBox.Text = "admin";
             PasswordBox.Password = "admin123";
-
-            Loaded += (s, e) => UsernameBox.Focus();
-
-            PasswordBox.KeyDown += (s, e) =>
-            {
-                if (e.Key == System.Windows.Input.Key.Enter)
-                    Login_Click(s, e);
-            };
-
-            UsernameBox.KeyDown += (s, e) =>
-            {
-                if (e.Key == System.Windows.Input.Key.Enter)
-                    PasswordBox.Focus();
-            };
         }
+        private bool _isConnected = false;
 
+        private void Connect_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var provider = (ProviderComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Sqlite";
+                var connectionString = _authService.GetConnectionString(provider);
+
+                DbContextFactory.SetProvider(provider, connectionString);
+                var context = DbContextFactory.GetDbContext();
+                _authService.SetContext(context);
+
+                _isConnected = true;
+                UsernameBox.IsEnabled = true;
+                PasswordBox.IsEnabled = true;
+                LoginButton.IsEnabled = true;
+
+                ProviderComboBox.IsEnabled = false;
+                (sender as Button).IsEnabled = false;
+
+                UsernameBox.Focus();
+                UsernameBox.Text = "admin";
+                PasswordBox.Password = "admin123";
+
+                MessageBox.Show($"Подключение к {provider} установлено.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "LoginWindow.Connect_Click");
+                MessageBox.Show($"Ошибка подключения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         private void Login_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 var username = UsernameBox.Text?.Trim();
                 var password = PasswordBox.Password;
+                var provider = (ProviderComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "Sqlite";
 
                 if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                 {
@@ -44,7 +65,7 @@ namespace CrmArcheonzero.Views
                     return;
                 }
 
-                if (_authService.Login(username, password))
+                if (_authService.Login(username, password, provider))
                 {
                     DialogResult = true;
                     Close();
@@ -67,11 +88,6 @@ namespace CrmArcheonzero.Views
         {
             DialogResult = false;
             Close();
-        }
-
-        private void UsernameBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-
         }
     }
 }

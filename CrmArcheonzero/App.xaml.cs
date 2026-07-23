@@ -8,11 +8,9 @@ namespace CrmArcheonzero
 {
     public partial class App : Application
     {
-        protected override async void OnStartup(StartupEventArgs e)
+        protected override void OnStartup(StartupEventArgs e)
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-            //var hash = BCrypt.Net.BCrypt.HashPassword("admin123");
-            //Console.WriteLine(hash);
             base.OnStartup(e);
 
             LoggerService.CleanOldLogs();
@@ -30,25 +28,9 @@ namespace CrmArcheonzero
                     LoggerService.LogError(ex, "AppDomain.UnhandledException");
             };
 
+            // Показываем главное окно
             var mainWindow = new MainWindow();
             mainWindow.Show();
-            await Task.Delay(10);
-            await LoadDataAsync(mainWindow);
-        }
-
-        private async Task LoadDataAsync(MainWindow mainWindow)
-        {
-            try
-            {
-                var vm = mainWindow.DataContext as ViewModels.MainViewModel;
-                if (vm == null) return;
-                await vm.LoadClientsAsync();
-                await vm.LoadAdditionalDataAsync();
-            }
-            catch (Exception ex)
-            {
-                LoggerService.LogError(ex, "Фоновая загрузка");
-            }
         }
     }
 }

@@ -1,7 +1,9 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using CrmArcheonzero.Services;
+using CrmArcheonzero.Views;
 
 namespace CrmArcheonzero
 {
@@ -11,19 +13,57 @@ namespace CrmArcheonzero
 
         public MainWindow()
         {
-            InitializeComponent();
-            _authService = new AuthService();
+            try
+            {
+                InitializeComponent();
+                _authService = new AuthService();
+                this.Loaded += MainWindow_Loaded;
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "MainWindow.Constructor");
+                MessageBox.Show($"Ошибка при загрузке окна: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        // ============================================================
-        // ОБРАБОТЧИКИ СОБЫТИЙ ДЛЯ ВКЛАДКИ "ПОЛЬЗОВАТЕЛИ"
-        // ============================================================
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Здесь можно добавить логику, которая выполняется после загрузки окна
+                LoggerService.LogAction("MainWindow", "Окно загружено");
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "MainWindow.Loaded");
+            }
+        }
+
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        {
+            var loginWindow = new LoginWindow(_authService);
+            loginWindow.Owner = this;
+
+            if (loginWindow.ShowDialog() == true)
+            {
+                var button = sender as Button;
+                if (button != null)
+                {
+                    button.Content = "✅ Выход";
+                    button.Background = new SolidColorBrush(Colors.Green);
+                }
+
+                if (DataContext is ViewModels.MainViewModel vm)
+                {
+                    _ = vm.LoadClientsAsync();
+                }
+            }
+        }
 
         private void AddUser_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // Находим элементы управления по имени (они объявлены в XAML)
                 var newUsername = FindName("NewUsername") as TextBox;
                 var newPassword = FindName("NewPassword") as PasswordBox;
                 var newEmail = FindName("NewEmail") as TextBox;
@@ -41,7 +81,6 @@ namespace CrmArcheonzero
                 var email = newEmail.Text?.Trim();
                 var role = (newRole.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "User";
 
-                // Валидация
                 if (string.IsNullOrWhiteSpace(username))
                 {
                     MessageBox.Show("Введите имя пользователя!", "Ошибка",
@@ -74,19 +113,16 @@ namespace CrmArcheonzero
                     return;
                 }
 
-                // Создание пользователя
                 if (_authService.CreateUser(username, password, email, username, role))
                 {
                     MessageBox.Show($"Пользователь '{username}' создан с ролью {role}!",
                         "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                    // Очищаем поля
                     newUsername.Text = "";
                     newPassword.Password = "";
                     newEmail.Text = "";
                     newRole.SelectedIndex = 0;
 
-                    // Обновляем список пользователей в ViewModel
                     if (DataContext is ViewModels.MainViewModel vm)
                     {
                         vm.LoadUsers();

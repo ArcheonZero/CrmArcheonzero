@@ -108,19 +108,19 @@
                             <Border Background="#C8E6C9" Padding="20" Margin="5" CornerRadius="6" Width="150">
                                 <StackPanel>
                                     <TextBlock Text="Active" FontSize="14" Foreground="#666"/>
-                                    <TextBlock Text="0" FontSize="28" FontWeight="Bold" Foreground="#2E7D32"/>
+                                    <TextBlock Text="{Binding ActiveCount, FallbackValue=0}" FontSize="28" FontWeight="Bold" Foreground="#2E7D32"/>
                                 </StackPanel>
                             </Border>
                             <Border Background="#FFE0B2" Padding="20" Margin="5" CornerRadius="6" Width="150">
                                 <StackPanel>
                                     <TextBlock Text="Lead" FontSize="14" Foreground="#666"/>
-                                    <TextBlock Text="0" FontSize="28" FontWeight="Bold" Foreground="#E65100"/>
+                                    <TextBlock Text="{Binding LeadCount, FallbackValue=0}" FontSize="28" FontWeight="Bold" Foreground="#E65100"/>
                                 </StackPanel>
                             </Border>
                             <Border Background="#FFCDD2" Padding="20" Margin="5" CornerRadius="6" Width="150">
                                 <StackPanel>
                                     <TextBlock Text="Inactive" FontSize="14" Foreground="#666"/>
-                                    <TextBlock Text="0" FontSize="28" FontWeight="Bold" Foreground="#C62828"/>
+                                    <TextBlock Text="{Binding InactiveCount, FallbackValue=0}" FontSize="28" FontWeight="Bold" Foreground="#C62828"/>
                                 </StackPanel>
                             </Border>
                         </WrapPanel>
@@ -531,8 +531,12 @@
 
             <!-- ЧАТ -->
             <TabItem Header="💬 Чат" 
-                     Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}">
-                <controls:ChatView />
+         Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}">
+                <TabItem.ContentTemplate>
+                    <DataTemplate>
+                        <controls:ChatView />
+                    </DataTemplate>
+                </TabItem.ContentTemplate>
             </TabItem>
 
         </TabControl>

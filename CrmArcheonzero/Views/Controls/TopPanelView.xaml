@@ -31,7 +31,7 @@
 
                 <StackPanel Orientation="Horizontal" Margin="10,0">
                     <TextBlock Text="Формат:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                    <ComboBox Width="80" Margin="0,0,5,0"
+                    <ComboBox Width="60" Margin="0,0,5,0"
               ItemsSource="{Binding ExportFormats}"
               SelectedItem="{Binding SelectedExportFormat}" />
                     <Button Content="Export" Command="{Binding ExportCommand}" 
@@ -49,29 +49,19 @@
                         Command="{Binding SendTelegramCommand}" 
                         Margin="3" Padding="8,4" 
                         Style="{StaticResource AccentButton}"/>
-                <Button Content="📄 PDF" 
-                        Command="{Binding ExportPdfCommand}" 
-                        Margin="3" Padding="8,4" 
-                        Style="{StaticResource AccentButton}"/>
                 <Button Content="☁️ Backup" 
                         Command="{Binding BackupToCloudCommand}" 
                         Margin="3" Padding="8,4" 
                         Style="{StaticResource AccentButton}"/>
+                <CheckBox Content="Мои клиенты" 
+          IsChecked="{Binding ShowMyClientsOnly, UpdateSourceTrigger=PropertyChanged}"
+          Margin="10,0,0,0"
+          VerticalAlignment="Center"/>
                 <Separator Margin="5,0" Width="1" Background="{StaticResource BorderSoft}"/>
-                <!--<Button Content="👥 Пользователи" 
-                        Command="{Binding ShowUserManagementCommand}" 
-                        Margin="3" Padding="8,4" 
-                        Style="{StaticResource FlatButton}" 
-                        Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}" Click="Button_Click"/>-->
                 <Button Content="🔑 Сменить пароль" 
                         Command="{Binding ChangePasswordCommand}" 
                         Margin="3" Padding="8,4" 
                         Style="{StaticResource FlatButton}"/>
-                <!--<Button Content="🗑 Корзина" 
-                        Command="{Binding OpenRecycleBinCommand}" 
-                        Margin="3" Padding="8,4" 
-                        Style="{StaticResource FlatButton}"
-                        Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}"/>-->
             </WrapPanel>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
