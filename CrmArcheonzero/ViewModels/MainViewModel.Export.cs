@@ -132,6 +132,11 @@ namespace CrmArcheonzero.ViewModels
                     fileBytes = exportService.ExportClientToDocx(SelectedClient);
                     extension = "docx";
                 }
+                else if (format.ToLower() == "txt")
+                {
+                    fileBytes = exportService.ExportClientToTxt(SelectedClient);
+                    extension = "txt";
+                }
                 else
                 {
                     MessageBox.Show($"Формат {format} не поддерживается.");

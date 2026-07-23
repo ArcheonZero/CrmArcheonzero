@@ -53,7 +53,60 @@ namespace CrmArcheonzero.Services
             return Encoding.UTF8.GetBytes(sb.ToString());
         }
 
+        public byte[] ExportClientToTxt(Client client)
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"Карточка клиента: {client.Name}");
+            sb.AppendLine($"ID: {client.Id}");
+            sb.AppendLine($"Имя: {client.Name}");
+            sb.AppendLine($"Телефон: {client.Phone}");
+            sb.AppendLine($"Email: {client.Email}");
+            sb.AppendLine($"Компания: {client.Company}");
+            sb.AppendLine($"Должность: {client.Position}");
+            sb.AppendLine($"Статус: {client.Status}");
+            sb.AppendLine($"Источник: {client.Source}");
+            sb.AppendLine($"Теги: {client.Tags}");
+            sb.AppendLine($"Дата создания: {client.CreatedAt:dd.MM.yyyy}");
+            sb.AppendLine($"Дата рождения: {client.Birthday?.ToString("dd.MM.yyyy")}");
+            sb.AppendLine($"Последний контакт: {client.LastContact?.ToString("dd.MM.yyyy")}");
+            sb.AppendLine($"Ответственный: {client.AssignedUser?.FullName}");
+            sb.AppendLine($"Адрес: {client.Address}");
+            sb.AppendLine($"Примечания: {client.Notes}");
 
+            if (client.Interactions != null && client.Interactions.Any())
+            {
+                sb.AppendLine();
+                sb.AppendLine("Взаимодействия:");
+                foreach (var i in client.Interactions.OrderByDescending(i => i.Date))
+                {
+                    sb.AppendLine($"  {i.Date:dd.MM.yyyy HH:mm} — {i.Type}: {i.Description}");
+                }
+            }
+
+            if (client.Tasks != null && client.Tasks.Any())
+            {
+                sb.AppendLine();
+                sb.AppendLine("Задачи:");
+                foreach (var t in client.Tasks.OrderBy(t => t.DueDate))
+                {
+                    var status = t.IsCompleted ? "[Выполнена]" : "[В работе]";
+                    sb.AppendLine($"  {t.Title} (до {t.DueDate:dd.MM.yyyy}) — {status}");
+                }
+            }
+
+            if (client.ClientNotes != null && client.ClientNotes.Any())
+            {
+                sb.AppendLine();
+                sb.AppendLine("Заметки:");
+                foreach (var n in client.ClientNotes.OrderByDescending(n => n.CreatedAt))
+                {
+                    sb.AppendLine($"  {n.CreatedAt:dd.MM.yyyy HH:mm} — {n.Content}");
+                }
+            }
+
+            var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+            return bytes;
+        }
 
         public byte[] ExportClientToDocx(Client client)
         {
