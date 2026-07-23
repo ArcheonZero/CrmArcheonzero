@@ -507,8 +507,8 @@ The project is built on principles of modularity and clean code. The core techno
 
     Multi-database support: SQLite (embedded), PostgreSQL (cloud/local), SQL Server.
 
-#⚡ Key Features
-#🔐 Authentication and Roles
+##⚡ Key Features
+###🔐 Authentication and Roles
 
     Login / Logout, password change.
 
@@ -522,7 +522,7 @@ The project is built on principles of modularity and clean code. The core techno
 
     "My Clients" filter to view only assigned clients.
 
-#👥 Client Management
+###👥 Client Management
 
     Add, edit, search, filter by status.
 
@@ -530,7 +530,7 @@ The project is built on principles of modularity and clean code. The core techno
 
     Responsible manager (assigned to a user).
 
-#📋 Tasks, Notes, Interactions
+###📋 Tasks, Notes, Interactions
 
     Create tasks with deadlines, priorities, and completion tracking.
 
@@ -538,7 +538,7 @@ The project is built on principles of modularity and clean code. The core techno
 
     Interaction history (calls, emails, meetings).
 
-#🗑️ Recycle Bin
+###🗑️ Recycle Bin
 
     Soft delete for clients.
 
@@ -548,37 +548,37 @@ The project is built on principles of modularity and clean code. The core techno
 
     Deletion history (who and when).
 
-#📊 Dashboard
+###📊 Dashboard
 
     Visual statistics by client status (Active/Inactive/Lead).
 
     Total client count.
 
-#📤 Export
+###📤 Export
 
     Client list: Excel (XLSX), CSV, HTML.
 
     Client card: PDF (via QuestPDF).
 
-#📥 Import
+###📥 Import
 
     Import clients from Excel (XLSX).
 
     Duplicate check by phone and email.
 
-#📧 Notifications
+###📧 Notifications
 
     Send emails via SMTP (MailKit).
 
     Telegram notifications for client addition, update, and deletion.
 
-#💾 Backup
+###💾 Backup
 
     Local backup of the database.
 
     Upload backup to Google Drive (Google Drive API).
 
-#🗂️ Project Structure
+###🗂️ Project Structure
 ```text
 
 📁 CrmArcheonzero/
@@ -817,7 +817,7 @@ All repositories (ClientRepository) use IDbContext from the factory
 
     Visual Studio 2022 (recommended)
 
-#🚀 Installation and Setup
+##🚀 Installation and Setup
 1. Clone the repository
 bash
 
@@ -887,13 +887,13 @@ Demo access:
 
     Password: admin123
 
-#📦 Release Build
+###📦 Release Build
 bash
 
 dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish
 
 After the build, a single .exe file will appear in the publish folder.
-#🧪 Testing
+###🧪 Testing
 
 To run tests, execute:
 bash
@@ -910,13 +910,13 @@ Test tools used:
 
     InMemoryDatabase — for isolated tests.
 
-#📄 License
+###📄 License
 
 This project was created for personal use and learning. Distribution and commercial use are only permitted with the author's permission.
-#👤 Author
+###👤 Author
 
 ArcheonZero
-#🙏 Acknowledgments
+###🙏 Acknowledgments
 
 Inspiration and support — Oracle Zero.
 
