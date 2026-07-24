@@ -1,0 +1,19 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Базовые цвета для тёмной темы -->
+    <SolidColorBrush x:Key="AccentGold" Color="#D4AF37"/>
+    <SolidColorBrush x:Key="AccentDeepBlue" Color="#4A6BB5"/>
+    <SolidColorBrush x:Key="BackgroundLight" Color="#1E1E2A"/>
+    <SolidColorBrush x:Key="CardBackground" Color="#2D2D3F"/>
+    <SolidColorBrush x:Key="TextDark" Color="#F0F0F0"/>
+    <SolidColorBrush x:Key="TextMuted" Color="#A0A0B0"/>
+    <SolidColorBrush x:Key="BorderLight" Color="#4A4A5E"/>
+    <SolidColorBrush x:Key="DangerRed" Color="#F44336"/>
+    <SolidColorBrush x:Key="WarningOrange" Color="#FF9800"/>
+    <SolidColorBrush x:Key="SoftBackground" Color="#252538"/>
+    <SolidColorBrush x:Key="CardShadow" Color="#3A3A4E"/>
+    <SolidColorBrush x:Key="InputBackground" Color="#3A3A4E"/>
+    <SolidColorBrush x:Key="BorderSoft" Color="#4A4A5E"/>
+
+</ResourceDictionary>

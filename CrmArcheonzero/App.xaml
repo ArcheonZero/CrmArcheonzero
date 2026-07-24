@@ -4,11 +4,10 @@
              xmlns:conv="clr-namespace:CrmArcheonzero.Converters">
     <Application.Resources>
         <ResourceDictionary>
-
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Views/Styles/Styles.xaml"/>
+                <ResourceDictionary Source="Views/Styles/Themes/LightTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
 
             <conv:BooleanToStrikethroughConverter x:Key="BooleanToStrikethrough"/>
             <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>

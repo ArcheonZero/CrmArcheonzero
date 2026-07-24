@@ -2,25 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ========================================== -->
-    <!-- БАЗОВЫЕ ЦВЕТА И КИСТИ -->
+    <!-- ЭФФЕКТ ТЕНИ (не зависит от темы) -->
     <!-- ========================================== -->
-    <SolidColorBrush x:Key="AccentGold" Color="#C9A04E"/>
-    <SolidColorBrush x:Key="AccentDeepBlue" Color="#4A6BB5"/>
-    <SolidColorBrush x:Key="BackgroundLight" Color="#F5F7FA"/>
-    <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="TextDark" Color="#1E1E2A"/>
-    <SolidColorBrush x:Key="TextMuted" Color="#5A5A6E"/>
-    <SolidColorBrush x:Key="BorderLight" Color="#E0E4EA"/>
-    <SolidColorBrush x:Key="DangerRed" Color="#D32F2F"/>
-    <SolidColorBrush x:Key="WarningOrange" Color="#E85D3A"/>
-
-    <!-- ДОПОЛНИТЕЛЬНЫЕ ЦВЕТА -->
-    <SolidColorBrush x:Key="SoftBackground" Color="#F9FAFB"/>
-    <SolidColorBrush x:Key="CardShadow" Color="#E5E7EB"/>
-    <SolidColorBrush x:Key="InputBackground" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="BorderSoft" Color="#D1D5DB"/>
-
-    <!-- ЭФФЕКТ ТЕНИ -->
     <DropShadowEffect x:Key="ShadowEffect" BlurRadius="10" ShadowDepth="2" Opacity="0.08"/>
 
     <!-- ========================================== -->
@@ -29,14 +12,14 @@
     <Style TargetType="TextBlock" x:Key="LabelText">
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="FontSize" Value="12"/>
-        <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextMuted}"/>
         <Setter Property="Margin" Value="0,0,0,4"/>
     </Style>
 
     <Style TargetType="TextBlock" x:Key="SectionHeader">
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{StaticResource AccentDeepBlue}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AccentDeepBlue}"/>
         <Setter Property="Margin" Value="0,0,0,10"/>
     </Style>
 
@@ -44,19 +27,52 @@
     <!-- СТИЛИ ДЛЯ ПОЛЕЙ ВВОДА -->
     <!-- ========================================== -->
     <Style TargetType="TextBox">
-        <Setter Property="Background" Value="White"/>
-        <Setter Property="BorderBrush" Value="{StaticResource BorderSoft}"/>
+        <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextDark}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="6"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="Height" Value="32"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>        
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
+
+    <Style TargetType="PasswordBox">
+        <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextDark}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="6"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style TargetType="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextDark}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="6"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style TargetType="DatePicker">
+        <Setter Property="Background" Value="{DynamicResource InputBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextDark}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Height" Value="32"/>
+    </Style>
+
     <!-- ========================================== -->
-    <!-- СТИЛЬ КНОПОК ПО УМОЛЧАНИЮ (без ключа) -->
+    <!-- СТИЛЬ КНОПОК ПО УМОЛЧАНИЮ -->
     <!-- ========================================== -->
     <Style TargetType="Button">
-        <Setter Property="Background" Value="{StaticResource AccentDeepBlue}"/>
+        <Setter Property="Background" Value="{DynamicResource AccentDeepBlue}"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Padding" Value="14,8"/>
         <Setter Property="Margin" Value="4"/>
@@ -68,11 +84,11 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}" 
-                        CornerRadius="8" 
-                        Padding="{TemplateBinding Padding}"
-                        Effect="{StaticResource ShadowEffect}">
+                            CornerRadius="8" 
+                            Padding="{TemplateBinding Padding}"
+                            Effect="{StaticResource ShadowEffect}">
                         <ContentPresenter HorizontalAlignment="Center" 
-                                      VerticalAlignment="Center"/>
+                                          VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -94,25 +110,21 @@
     <!-- ========================================== -->
     <!-- КЛЮЧЕВЫЕ СТИЛИ КНОПОК -->
     <!-- ========================================== -->
-
-    <!-- AccentButton — синяя, белый текст -->
     <Style TargetType="Button" x:Key="AccentButton" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Background" Value="{StaticResource AccentDeepBlue}"/>
+        <Setter Property="Background" Value="{DynamicResource AccentDeepBlue}"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Padding" Value="12,6"/>
         <Setter Property="Margin" Value="3"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
-    <!-- SuccessButton — зелёная, белый текст -->
     <Style TargetType="Button" x:Key="SuccessButton" BasedOn="{StaticResource AccentButton}">
         <Setter Property="Background" Value="#4CAF50"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
 
-    <!-- DangerButton — красная, белый текст -->
     <Style TargetType="Button" x:Key="DangerButton" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Background" Value="{StaticResource DangerRed}"/>
+        <Setter Property="Background" Value="{DynamicResource DangerRed}"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Padding" Value="12,6"/>
         <Setter Property="Margin" Value="10,0"/>
@@ -126,14 +138,13 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Background" Value="#E0A0A0"/>
-                <Setter Property="Foreground" Value="#F0D0D0"/>
+                <Setter Property="Foreground" Value="#F0D0C0"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <!-- LoginButton — оранжевая, БЕЛЫЙ текст -->
     <Style TargetType="Button" x:Key="LoginButton" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Background" Value="{StaticResource WarningOrange}"/>
+        <Setter Property="Background" Value="{DynamicResource WarningOrange}"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Padding" Value="16,8"/>
         <Setter Property="Margin" Value="10,0"/>
@@ -153,11 +164,10 @@
         </Style.Triggers>
     </Style>
 
-    <!-- FlatButton — прозрачная, ТЁМНО-СИНИЙ текст -->
     <Style TargetType="Button" x:Key="FlatButton" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{StaticResource TextDark}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource BorderSoft}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextDark}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="8,4"/>
         <Setter Property="Margin" Value="2"/>
@@ -165,11 +175,11 @@
         <Setter Property="FontSize" Value="12"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Foreground" Value="{StaticResource AccentDeepBlue}"/>
+                <Setter Property="Foreground" Value="{DynamicResource AccentDeepBlue}"/>
                 <Setter Property="Background" Value="#E8EDF4"/>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Foreground" Value="{StaticResource AccentDeepBlue}"/>
+                <Setter Property="Foreground" Value="{DynamicResource AccentDeepBlue}"/>
                 <Setter Property="Background" Value="#D0D8E8"/>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
@@ -182,14 +192,14 @@
     <!-- СТИЛИ ДЛЯ ВКЛАДОК -->
     <!-- ========================================== -->
     <Style TargetType="TabControl">
-        <Setter Property="Background" Value="{StaticResource BackgroundLight}"/>
+        <Setter Property="Background" Value="{DynamicResource BackgroundLight}"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
     <Style TargetType="TabItem">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextMuted}"/>
         <Setter Property="Padding" Value="16,8"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="BorderThickness" Value="0"/>
@@ -198,23 +208,23 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
                     <Border Background="{TemplateBinding Background}"
-                        CornerRadius="8"
-                        Padding="{TemplateBinding Padding}"
-                        Margin="2">
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}"
+                            Margin="2">
                         <ContentPresenter ContentSource="Header" 
-                                      HorizontalAlignment="Center" 
-                                      VerticalAlignment="Center"/>
+                                          HorizontalAlignment="Center" 
+                                          VerticalAlignment="Center"/>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{StaticResource AccentDeepBlue}"/>
+                <Setter Property="Background" Value="{DynamicResource AccentDeepBlue}"/>
                 <Setter Property="Foreground" Value="White"/>
             </Trigger>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource AccentDeepBlue}"/>
+                <Setter Property="Background" Value="{DynamicResource AccentDeepBlue}"/>
                 <Setter Property="Foreground" Value="White"/>
             </Trigger>
         </Style.Triggers>
@@ -224,11 +234,11 @@
     <!-- СТИЛИ ДЛЯ DATAGRID -->
     <!-- ========================================== -->
     <Style TargetType="DataGrid">
-        <Setter Property="Background" Value="{StaticResource CardBackground}"/>
-        <Setter Property="Foreground" Value="{StaticResource TextDark}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource BorderSoft}"/>
+        <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextDark}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}"/>
         <Setter Property="GridLinesVisibility" Value="None"/>
-        <Setter Property="RowBackground" Value="{StaticResource CardBackground}"/>
+        <Setter Property="RowBackground" Value="{DynamicResource CardBackground}"/>
         <Setter Property="AlternatingRowBackground" Value="#F8F9FA"/>
         <Setter Property="HeadersVisibility" Value="Column"/>
         <Setter Property="CanUserAddRows" Value="False"/>
@@ -238,24 +248,82 @@
 
     <Style TargetType="DataGridColumnHeader">
         <Setter Property="Background" Value="#F1F3F5"/>
-        <Setter Property="Foreground" Value="{StaticResource AccentDeepBlue}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AccentDeepBlue}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="BorderBrush" Value="{StaticResource BorderSoft}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="Padding" Value="8"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
     </Style>
 
     <Style TargetType="DataGridRow">
-        <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+        <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="#F1F5F9"/>
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Background" Value="#E8EDF5"/>
-                <Setter Property="Foreground" Value="{StaticResource TextDark}"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextDark}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
+
+    <!-- ========================================== -->
+    <!-- СТИЛИ ДЛЯ LISTVIEW -->
+    <!-- ========================================== -->
+    <Style TargetType="ListView">
+        <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextDark}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <Style TargetType="ListViewItem">
+        <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextDark}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#F1F5F9"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="#E8EDF5"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextDark}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ========================================== -->
+    <!-- СТИЛИ ДЛЯ SCROLLVIEWER -->
+    <!-- ========================================== -->
+    <Style TargetType="ScrollViewer">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+    <!-- ========================================== -->
+    <!-- СТИЛИ ДЛЯ BORDER -->
+    <!-- ========================================== -->
+    <Style TargetType="Border" x:Key="CardBorder">
+        <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Effect" Value="{StaticResource ShadowEffect}"/>
+    </Style>
+
+    <!-- ========================================== -->
+    <!-- СТИЛИ ДЛЯ STATUS BAR -->
+    <!-- ========================================== -->
+    <Style TargetType="StatusBar">
+        <Setter Property="Background" Value="{DynamicResource SoftBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextMuted}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1,0,0,0"/>
+        <Setter Property="Height" Value="30"/>
+    </Style>
+
+    <Style TargetType="StatusBarItem">
+        <Setter Property="Foreground" Value="{DynamicResource TextMuted}"/>
+    </Style>
+
 </ResourceDictionary>

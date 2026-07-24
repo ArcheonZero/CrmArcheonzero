@@ -1,0 +1,29 @@
+<UserControl x:Class="CrmArcheonzero.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="20">
+        <StackPanel>
+            <TextBlock Text="⚙️ Настройки" FontSize="22" FontWeight="Bold" 
+                       Foreground="{DynamicResource AccentDeepBlue}" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Тема оформления" FontWeight="SemiBold" Foreground="{DynamicResource AccentDeepBlue}" FontSize="16" Margin="0,0,0,10"/>
+            <StackPanel Margin="0,0,0,20">
+                <RadioButton Content="☀️ Светлая" GroupName="Theme" 
+                             IsChecked="{Binding IsLightTheme}" Margin="0,3"/>
+                <RadioButton Content="🌙 Тёмная" GroupName="Theme" 
+                             IsChecked="{Binding IsDarkTheme}" Margin="0,3"/>
+                <RadioButton Content="🔆 Яркая" GroupName="Theme" 
+                             IsChecked="{Binding IsBrightTheme}" Margin="0,3"/>
+            </StackPanel>
+
+            <TextBlock Text="База данных по умолчанию" FontWeight="SemiBold" Foreground="{DynamicResource AccentDeepBlue}" FontSize="16" Margin="0,0,0,10"/>
+            <ComboBox ItemsSource="{Binding AvailableProviders}" 
+                      SelectedItem="{Binding DefaultProvider}"
+                      Width="200" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Настройки экспорта" FontWeight="SemiBold" Foreground="{DynamicResource AccentDeepBlue}" FontSize="16" Margin="0,0,0,10"/>
+            <CheckBox Content="Автоматически открывать папку после экспорта" 
+                      IsChecked="{Binding AutoOpenExportFolder}" Foreground="{DynamicResource AccentDeepBlue}" Margin="0,3"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -3,11 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:CrmArcheonzero.ViewModels">
 
-    <Border Background="{StaticResource SoftBackground}" 
+    <Border Background="{DynamicResource SoftBackground}" 
             Padding="16" 
             CornerRadius="12" 
             Margin="0,0,0,12" 
-            BorderBrush="{StaticResource BorderSoft}" 
+            BorderBrush="{DynamicResource BorderSoft}" 
             BorderThickness="1"
             Effect="{StaticResource ShadowEffect}">
         <Grid>
@@ -21,7 +21,7 @@
                        Text="CRM Archeonzero" 
                        FontSize="20" 
                        FontWeight="SemiBold" 
-                       Foreground="{StaticResource AccentDeepBlue}" 
+                       Foreground="{DynamicResource AccentDeepBlue}" 
                        VerticalAlignment="Center"/>
 
             <WrapPanel Grid.Column="1" 
@@ -32,54 +32,54 @@
                 <StackPanel Orientation="Horizontal" Margin="10,0">
                     <TextBlock Text="Формат:" VerticalAlignment="Center" Margin="0,0,5,0"/>
                     <ComboBox Width="60" Margin="0,0,5,0"
-              ItemsSource="{Binding ExportFormats}"
-              SelectedItem="{Binding SelectedExportFormat}" />
+                              ItemsSource="{Binding ExportFormats}"
+                              SelectedItem="{Binding SelectedExportFormat}" />
                     <Button Content="Export" Command="{Binding ExportCommand}" 
-            Margin="2" Padding="8,4" Style="{StaticResource AccentButton}"/>
+                            Margin="2" Padding="8,4" Style="{DynamicResource AccentButton}"/>
                 </StackPanel>
                 <Button Content="🎂 ДР" 
                         Command="{Binding ShowBirthdaysCommand}" 
                         Margin="3" Padding="8,4" 
-                        Style="{StaticResource AccentButton}"/>
+                        Style="{DynamicResource AccentButton}"/>
                 <Button Content="📧 Email" 
                         Command="{Binding SendEmailCommand}" 
                         Margin="3" Padding="8,4" 
-                        Style="{StaticResource AccentButton}"/>
+                        Style="{DynamicResource AccentButton}"/>
                 <Button Content="📱 Telegram" 
                         Command="{Binding SendTelegramCommand}" 
                         Margin="3" Padding="8,4" 
-                        Style="{StaticResource AccentButton}"/>
+                        Style="{DynamicResource AccentButton}"/>
                 <Button Content="☁️ Backup" 
                         Command="{Binding BackupToCloudCommand}" 
                         Margin="3" Padding="8,4" 
-                        Style="{StaticResource AccentButton}"/>
+                        Style="{DynamicResource AccentButton}"/>
                 <CheckBox Content="Мои клиенты" 
-          IsChecked="{Binding ShowMyClientsOnly, UpdateSourceTrigger=PropertyChanged}"
-          Margin="10,0,0,0"
-          VerticalAlignment="Center"/>
-                <Separator Margin="5,0" Width="1" Background="{StaticResource BorderSoft}"/>
+                          IsChecked="{Binding ShowMyClientsOnly, UpdateSourceTrigger=PropertyChanged}"
+                          Margin="10,0,0,0"
+                          VerticalAlignment="Center"/>
+                <Separator Margin="5,0" Width="1" Background="{DynamicResource BorderSoft}"/>
                 <Button Content="🔑 Сменить пароль" 
                         Command="{Binding ChangePasswordCommand}" 
                         Margin="3" Padding="8,4" 
-                        Style="{StaticResource FlatButton}"/>
+                        Style="{DynamicResource FlatButton}"/>
             </WrapPanel>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="{Binding CurrentUser.FullName, StringFormat='Меню Администратора — {0}'}" 
                            Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}"
                            VerticalAlignment="Center" Margin="10,0" FontWeight="SemiBold" 
-                           Foreground="{StaticResource TextDark}"/>
+                           Foreground="{DynamicResource TextDark}"/>
                 <TextBlock Text="{Binding CurrentUser.FullName}" 
                            Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}"
                            VerticalAlignment="Center" Margin="10,0" FontWeight="SemiBold" 
-                           Foreground="{StaticResource TextDark}"/>
+                           Foreground="{DynamicResource TextDark}"/>
                 <Button Content="🔐 Войти" 
                         Command="{Binding LoginCommand}" 
-                        Style="{StaticResource LoginButton}"
+                        Style="{DynamicResource LoginButton}"
                         Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}"/>
                 <Button Content="🚪 Выйти" 
                         Command="{Binding LogoutCommand}" 
-                        Style="{StaticResource DangerButton}"
+                        Style="{DynamicResource DangerButton}"
                         Visibility="{Binding IsAuthenticated, Converter={StaticResource BoolToVisibility}}"/>
             </StackPanel>
         </Grid>

@@ -16,7 +16,12 @@
 		<AssemblyVersion>2.0.2.0</AssemblyVersion>
 		<FileVersion>2.0.2.0</FileVersion>
 		<Platforms>AnyCPU;ARM64;x64</Platforms>
+		<ApplicationIcon>Resources\A-zero256.ico</ApplicationIcon>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Include="Resources\A-zero256.ico" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Identity" Version="1.6.0" />
