@@ -113,10 +113,18 @@ namespace CrmArcheonzero.ViewModels
                 MessageBox.Show("Только администратор может удалять пользователей.", "Доступ запрещён", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
+            if (SelectedUser.Id == _userService.GetCurrentUser().Id)
+            {
+                MessageBox.Show("Вы не можете удалить самого себя.", "Доступ запрещён", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             var result = MessageBox.Show($"Удалить пользователя {SelectedUser.Username}?",
                 "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
+            if (SelectedUser.Role == "Admin")
+            {
+                MessageBox.Show("Вы не можете удалить другого администратора.", "Доступ запрещён", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             if (result == MessageBoxResult.Yes)
             {
                 try
