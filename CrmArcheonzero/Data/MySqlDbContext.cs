@@ -1,9 +1,10 @@
-using Microsoft.EntityFrameworkCore;
 using CrmArcheonzero.Models;
 using CrmArcheonzero.Services;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 
 namespace CrmArcheonzero.Data
 {
@@ -19,17 +20,19 @@ namespace CrmArcheonzero.Data
 
         private readonly string _connectionString;
 
-        public MySqlDbContext(string connectionString = "Server=localhost;Port=3306;Database=crmdb;Uid=root;Pwd=;")
+        public MySqlDbContext(string connectionString)
         {
             _connectionString = connectionString;
+            LoggerService.LogAction("MySqlDbContext", $"Создан контекст со строкой: {_connectionString}");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseMySql(_connectionString, 
-                    new MySqlServerVersion(new Version(8, 0, 35)));
+                optionsBuilder.UseMySql(_connectionString,
+                new MySqlServerVersion(new Version(8, 0, 35)),
+                options => options.EnableRetryOnFailure());
             }
         }
 
@@ -135,13 +138,56 @@ namespace CrmArcheonzero.Data
 
         public void EnsureDatabaseCreated()
         {
-            Database.EnsureCreated();
+            try
+            {
+                LoggerService.LogAction("MySqlDbContext", $"Попытка подключения к MySQL...");
+                LoggerService.LogAction("MySqlDbContext", $"Строка подключения: {_connectionString}");
+
+                // Проверяем, что соединение вообще возможно
+                var canConnect = Database.CanConnect();
+                LoggerService.LogAction("MySqlDbContext", $"CanConnect вернул: {canConnect}");
+
+                // Если CanConnect не сработал, пробуем открыть соединение вручную
+                try
+                {
+                    Database.OpenConnection();
+                    LoggerService.LogAction("MySqlDbContext", "OpenConnection успешно открыл соединение.");
+                    Database.CloseConnection();
+                    LoggerService.LogAction("MySqlDbContext", "CloseConnection закрыл соединение.");
+                }
+                catch (Exception ex)
+                {
+                    LoggerService.LogError(ex, "MySqlDbContext.OpenConnection");
+                    throw;
+                }
+
+                // Проверяем, что база существует
+                var dbExists = Database.CanConnect();
+                LoggerService.LogAction("MySqlDbContext", $"База существует: {dbExists}");
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "MySqlDbContext.EnsureDatabaseCreated");
+                throw;
+            }
         }
 
         public void EnsureSeedData()
         {
-            // Проверяем, есть ли пользователи
-            if (Users.Any()) return;
+            try
+            {
+                // Проверяем, есть ли таблица Users
+                var tableExists = Database.ExecuteSqlRaw(
+                    "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'Users';"
+                ) > 0;
+
+                if (!tableExists)
+                {
+                    // Если таблиц нет — создаём через EnsureCreated
+                    Database.EnsureCreated();
+                }
+                // Проверяем, есть ли пользователи
+                if (Users.Any()) return;
 
             var admin = new User
             {
@@ -232,6 +278,12 @@ namespace CrmArcheonzero.Data
 
             Clients.AddRange(clients);
             SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "MySqlDbContext.EnsureSeedData");
+                throw;
+            }
         }
     }
 }

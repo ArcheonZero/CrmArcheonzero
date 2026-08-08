@@ -62,6 +62,7 @@ namespace CrmArcheonzero.Data
                 _currentDbContext = _selectedProvider.ToLower() switch
                 {
                     "postgresql" or "postgres" or "npgsql" or "postgre" => new PostgreDbContext(_selectedConnectionString),
+                    "mysql" or "mariadb" => new MySqlDbContext(_selectedConnectionString),
                     "sqlserver" => new SqlServerDbContext(_selectedConnectionString),
                     _ => new SqliteDbContext(_selectedConnectionString)
                 };
