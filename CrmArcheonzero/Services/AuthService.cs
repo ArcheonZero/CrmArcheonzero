@@ -93,6 +93,7 @@ namespace CrmArcheonzero.Services
             {
                 "postgre" or "postgresql" or "npgsql" or "postgres" => config["Database:Providers:PostgreSQL:ConnectionString"],
                 "sqlserver" => config["Database:Providers:SqlServer:ConnectionString"],
+                "mysql" or "mariadb" => config["Database:Providers:MySql:ConnectionString"], // Добавить
                 _ => config["Database:Providers:Sqlite:ConnectionString"]
             };
 
@@ -125,7 +126,8 @@ namespace CrmArcheonzero.Services
 
         public bool IsAdmin() => _currentUser?.Role == "Admin";
 
-        public bool IsSuperManager() => _currentUser?.Role == "SuperManager" || _currentUser?.Role == "Admin";
+        public bool IsSuperManager() => _currentUser?.Role == "SuperManager";
+        public bool IsManager() => _currentUser?.Role == "Manager";
 
         public bool IsAuthenticated() => _currentUser != null;
 

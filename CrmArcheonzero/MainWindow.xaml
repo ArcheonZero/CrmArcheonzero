@@ -209,7 +209,7 @@
                                         <StackPanel Margin="5">
                                             <TextBlock Text="Ответственный:" Style="{DynamicResource LabelText}"/>
                                             <ComboBox ItemsSource="{Binding Users}" 
-                                                      DisplayMemberPath="FullName" 
+                                                      DisplayMemberPath="Username" 
                                                       SelectedValuePath="Id" 
                                                       SelectedValue="{Binding EditableClient.AssignedUserId}"
                                                       Width="150"/>

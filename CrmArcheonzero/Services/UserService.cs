@@ -36,7 +36,10 @@ namespace CrmArcheonzero.Services
         {
             return _authService.IsSuperManager();
         }
-
+        public bool IsManager()
+        {
+            return _authService.IsManager();
+        }
         public User? GetCurrentUser()
         {
             return _authService.GetCurrentUser();
@@ -69,6 +72,10 @@ namespace CrmArcheonzero.Services
         public void DeleteUser(int userId)
         {
             _repository.DeleteUser(userId);
+        }
+        public User? GetUserById(int userId)
+        {
+            return _repository.GetUserById(userId);
         }
     }
 }

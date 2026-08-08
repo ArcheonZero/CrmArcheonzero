@@ -1,13 +1,15 @@
+using CrmArcheonzero.Models;
+using CrmArcheonzero.Services;
+using DocumentFormat.OpenXml.ExtendedProperties;
+using LiveCharts;
+using LiveCharts.Wpf;
+using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Numeric;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
 using System.Threading.Tasks;
-using CrmArcheonzero.Models;
-using CrmArcheonzero.Services;
-using LiveCharts.Wpf;
-using LiveCharts;
-using Microsoft.EntityFrameworkCore;
+using System.Windows;
 
 namespace CrmArcheonzero.ViewModels
 {
@@ -19,23 +21,32 @@ namespace CrmArcheonzero.ViewModels
 
         public async Task LoadClientsAsync()
         {
-            if (!IsAuthenticated) return;
-            IsLoading = true;
-            try
+            if (!IsAdmin && !IsSuperManager && !IsManager)
             {
                 var list = await _clientService.GetAllAsync(false);
+                list = list.Where(c => c.AssignedUserId == CurrentUser.Id).ToList();
                 Clients = new ObservableCollection<Client>(list);
-                ApplyFilter(); // <-- добавить, если ещё нет
-                UpdateChart();
-                LoadUsers();
             }
-            catch (Exception ex)
+            else
             {
-                LoggerService.LogError(ex, "LoadClientsAsync");
-            }
-            finally
-            {
-                IsLoading = false;
+                if (!IsAuthenticated) return;
+                IsLoading = true;
+                try
+                {
+                    var list = await _clientService.GetAllAsync(false);
+                    Clients = new ObservableCollection<Client>(list);
+                    ApplyFilter(); // <-- добавить, если ещё нет
+                    UpdateChart();
+                    LoadUsers();
+                }
+                catch (Exception ex)
+                {
+                    LoggerService.LogError(ex, "LoadClientsAsync");
+                }
+                finally
+                {
+                    IsLoading = false;
+                }
             }
         }
 
@@ -164,6 +175,8 @@ namespace CrmArcheonzero.ViewModels
                     Status = "Lead",
                     AssignedUserId = _userService.GetCurrentUser()?.Id
                 };
+                LoggerService.LogAction("OpenEditForm (новый клиент)",
+       $"AssignedUserId (текущий пользователь): {_userService.GetCurrentUser()?.Id}");
                 SelectedClient = null;
                 Interactions = new ObservableCollection<Interaction>();
                 Tasks = new ObservableCollection<ClientTask>();
@@ -188,6 +201,7 @@ namespace CrmArcheonzero.ViewModels
                     Birthday = client.Birthday,
                     AssignedUserId = client.AssignedUserId,
                     Tags = client.Tags
+
                 };
                 SelectedClient = client;
                 LoadClientDetails(client.Id);
@@ -303,8 +317,9 @@ namespace CrmArcheonzero.ViewModels
                     existing.AssignedUserId = EditableClient.AssignedUserId;
 
                     _clientService.Update(existing);
-                    LoggerService.LogAction("Обновление клиента", $"Клиент {existing.Name} (ID: {existing.Id}) обновлён");
                     _telegramService?.SendClientNotification(existing.Name, "Обновлена информация");
+                    LoadClients();
+                    RefreshCommands();
                 }
 
                 EditableClient = new Client();
@@ -313,7 +328,7 @@ namespace CrmArcheonzero.ViewModels
                 IsEditMode = false;
                 LoadClients();
                 RefreshCommands();
-
+                SelectedTabIndex = 0;
                 MessageBox.Show("Клиент сохранен!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (DbUpdateConcurrencyException)
@@ -332,7 +347,7 @@ namespace CrmArcheonzero.ViewModels
         {
             if (SelectedClient == null) return;
 
-            if (!IsAdmin && SelectedClient.AssignedUserId != _userService.GetCurrentUser()?.Id)
+            if (!IsAdmin && !IsSuperManager && !IsManager && SelectedClient.AssignedUserId != _userService.GetCurrentUser()?.Id)
             {
                 MessageBox.Show("Вы можете удалять только своих клиентов.", "Доступ запрещён", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -395,7 +410,12 @@ namespace CrmArcheonzero.ViewModels
         private void PermanentDeleteClient()
         {
             if (SelectedDeletedClient == null || !SelectedDeletedClient.IsDeleted) return;
-
+            var assignedUser = _userService.GetUserById(SelectedDeletedClient.AssignedUserId ?? 0);
+            if (assignedUser?.Role == "Admin" || assignedUser?.Role == "SuperManager")
+            {
+                MessageBox.Show("Вы не можете окончательно удалить клиента, привязанного к администратору или суперменеджеру.");
+                return;
+            }
             if (!IsSuperManager)
             {
                 MessageBox.Show("Только SuperManager или Admin могут окончательно удалять клиентов.", "Доступ запрещён", MessageBoxButton.OK, MessageBoxImage.Warning);

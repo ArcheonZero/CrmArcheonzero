@@ -293,5 +293,11 @@ namespace CrmArcheonzero.Services
             user.IsActive = false;
             Context.SaveChanges();
         }
+
+        public User? GetUserById(int userId)
+        {
+            return ((DbContext)Context).Set<User>().FirstOrDefault(u => u.Id == userId);
+        }
+
     }
 }

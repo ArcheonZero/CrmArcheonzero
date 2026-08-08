@@ -217,6 +217,8 @@ namespace CrmArcheonzero.ViewModels
 
         public bool IsAdmin => _userService.IsAdmin();
         public bool IsSuperManager => _userService.IsSuperManager();
+
+        public bool IsManager => _userService.IsManager();
         public User? CurrentUser => _userService.GetCurrentUser();
 
         public ObservableCollection<string> Statuses { get; } = new() { "Все", "Active", "Inactive", "Lead" };

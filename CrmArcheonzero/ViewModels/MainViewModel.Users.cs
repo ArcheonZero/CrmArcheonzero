@@ -108,6 +108,13 @@ namespace CrmArcheonzero.ViewModels
         {
             if (SelectedUser == null) return;
 
+            var currentUser = _userService.GetCurrentUser();
+            if (currentUser == null)
+            {
+                MessageBox.Show("Не удалось определить текущего пользователя.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             if (!IsAdmin)
             {
                 MessageBox.Show("Только администратор может удалять пользователей.", "Доступ запрещён", MessageBoxButton.OK, MessageBoxImage.Warning);
