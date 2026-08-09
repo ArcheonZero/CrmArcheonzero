@@ -66,11 +66,12 @@ namespace CrmArcheonzero
             try
             {
                 var newUsername = FindName("NewUsername") as TextBox;
+                var newFullName = FindName("NewFullName") as TextBox;
                 var newPassword = FindName("NewPassword") as PasswordBox;
                 var newEmail = FindName("NewEmail") as TextBox;
                 var newRole = FindName("NewRole") as ComboBox;
 
-                if (newUsername == null || newPassword == null || newEmail == null || newRole == null)
+                if (newUsername == null || newFullName == null || newPassword == null || newEmail == null || newRole == null)
                 {
                     MessageBox.Show("Ошибка инициализации формы. Перезапустите приложение.",
                         "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -78,6 +79,7 @@ namespace CrmArcheonzero
                 }
 
                 var username = newUsername.Text?.Trim();
+                var fullname = newFullName.Text?.Trim();
                 var password = newPassword.Password;
                 var email = newEmail.Text?.Trim();
                 var role = (newRole.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "User";
@@ -89,7 +91,13 @@ namespace CrmArcheonzero
                     newUsername.Focus();
                     return;
                 }
-
+                if (string.IsNullOrWhiteSpace(fullname))
+                {
+                    MessageBox.Show("Введите Фамилию!", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    newFullName.Focus();
+                    return;
+                }
                 if (string.IsNullOrWhiteSpace(password))
                 {
                     MessageBox.Show("Введите пароль!", "Ошибка",
@@ -114,12 +122,13 @@ namespace CrmArcheonzero
                     return;
                 }
 
-                if (_authService.CreateUser(username, password, email, username, role))
+                if (_authService.CreateUser(username, fullname, password, email, role))
                 {
                     MessageBox.Show($"Пользователь '{username}' создан с ролью {role}!",
                         "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
 
                     newUsername.Text = "";
+                    newFullName.Text = "";
                     newPassword.Password = "";
                     newEmail.Text = "";
                     newRole.SelectedIndex = 0;
