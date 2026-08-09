@@ -25,7 +25,7 @@ namespace CrmArcheonzero.Services
                     _driveService = new DriveService(new BaseClientService.Initializer
                     {
                         HttpClientInitializer = credential,
-                        ApplicationName = "CRM System"
+                        ApplicationName = "CRM Archeonzero"
                     });
 
                     _folderId = folderId;
