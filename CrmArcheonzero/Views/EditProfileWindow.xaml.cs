@@ -25,10 +25,11 @@ namespace CrmArcheonzero.Views
         {
             try
             {
-                var newName = FullNameBox.Text?.Trim();
+                var newUsername = UsernameBox.Text?.Trim();
+                var newFullName = FullNameBox.Text?.Trim();
                 var newEmail = EmailBox.Text?.Trim();
 
-                if (string.IsNullOrWhiteSpace(newName))
+                if (string.IsNullOrWhiteSpace(newFullName))
                 {
                     StatusText.Text = "Имя не может быть пустым!";
                     return;
@@ -47,7 +48,7 @@ namespace CrmArcheonzero.Views
                     return;
                 }
 
-                if (_authService.UpdateProfile(user.Id, newName, newEmail))
+                if (_authService.UpdateProfile(user.Id, newUsername, newFullName, newEmail))
                 {
                     MessageBox.Show("Профиль обновлён!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     DialogResult = true;

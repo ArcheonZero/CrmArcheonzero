@@ -272,18 +272,7 @@ namespace CrmArcheonzero.Services
                 .ToList();
         }
 
-        public void UpdateUser(User user)
-        {
-            var existing = Context.Users.Find(user.Id);
-            if (existing == null) return;
 
-            existing.Email = user.Email;
-            existing.FullName = user.FullName;
-            existing.Role = user.Role;
-            existing.IsActive = user.IsActive;
-
-            Context.SaveChanges();
-        }
 
         public void DeleteUser(int userId)
         {

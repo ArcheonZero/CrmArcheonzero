@@ -402,26 +402,45 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Margin="5">
                                     <TextBlock Text="Логин:" Style="{DynamicResource LabelText}"/>
-                                    <TextBox Text="{Binding EditableUser.Username}" IsEnabled="False"/>
+                                    <TextBox Text="{Binding EditableUser.Username}" IsEnabled="True"/>
                                 </StackPanel>
-
+                                
                                 <StackPanel Grid.Column="1" Margin="5">
+                                    <TextBlock Text="Фамилия:" Style="{DynamicResource LabelText}"/>
+                                    <TextBox Text="{Binding EditableUser.FullName}"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2" Margin="5">
                                     <TextBlock Text="Email:" Style="{DynamicResource LabelText}"/>
                                     <TextBox Text="{Binding EditableUser.Email}"/>
                                 </StackPanel>
 
-                                <StackPanel Grid.Column="2" Margin="5">
+                                <StackPanel Grid.Column="3" Margin="5">
                                     <TextBlock Text="Роль:" Style="{DynamicResource LabelText}"/>
                                     <ComboBox ItemsSource="{Binding Roles}"
                                               SelectedItem="{Binding EditableUser.Role}"/>
                                 </StackPanel>
-
-                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                <StackPanel Grid.Column="4" Margin="5">
+                                    <TextBlock Text="Новый пароль:" Style="{DynamicResource LabelText}"/>
+                                    <PasswordBox x:Name="NewUserPassword" 
+                                                 PasswordChanged="NewUserPassword_PasswordChanged"
+                                                 Width="120"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="5" Margin="5">
+                                    <TextBlock Text="Активен:" Style="{DynamicResource LabelText}"/>
+                                    <CheckBox IsChecked="{Binding EditableUser.IsActive}" 
+                                              VerticalAlignment="Center" 
+                                              Margin="0,5,0,0"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom">
                                     <Button Content="💾 Сохранить" Command="{Binding SaveUserCommand}"
                                             Margin="5" Padding="15,8" Style="{DynamicResource AccentButton}"/>
                                     <Button Content="🗑 Удалить" Command="{Binding DeleteUserCommand}"
@@ -447,6 +466,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
@@ -454,18 +474,23 @@
                                     <TextBlock Text="Логин:" Style="{DynamicResource LabelText}"/>
                                     <TextBox x:Name="NewUsername" Margin="0,3,0,0" Padding="5"/>
                                 </StackPanel>
-
+                                
                                 <StackPanel Grid.Column="1" Margin="5">
+                                    <TextBlock Text="Фамилия:" Style="{DynamicResource LabelText}"/>
+                                    <TextBox x:Name="NewFullName" Margin="0,3,0,0" Padding="5"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2" Margin="5">
                                     <TextBlock Text="Пароль:" Style="{DynamicResource LabelText}"/>
                                     <PasswordBox x:Name="NewPassword" Margin="0,3,0,0" Padding="5"/>
                                 </StackPanel>
 
-                                <StackPanel Grid.Column="2" Margin="5">
+                                <StackPanel Grid.Column="3" Margin="5">
                                     <TextBlock Text="Email:" Style="{DynamicResource LabelText}"/>
                                     <TextBox x:Name="NewEmail" Margin="0,3,0,0" Padding="5"/>
                                 </StackPanel>
 
-                                <StackPanel Grid.Column="3" Margin="5">
+                                <StackPanel Grid.Column="4" Margin="5">
                                     <TextBlock Text="Роль:" Style="{DynamicResource LabelText}"/>
                                     <ComboBox x:Name="NewRole" Margin="0,3,0,0" Padding="5" SelectedIndex="0">
                                         <ComboBoxItem Content="User" IsSelected="True" />
@@ -475,7 +500,7 @@
                                     </ComboBox>
                                 </StackPanel>
 
-                                <Button Grid.Column="4" 
+                                <Button Grid.Column="5" 
                                         Content="➕ Добавить" 
                                         Click="AddUser_Click" 
                                         Margin="5"

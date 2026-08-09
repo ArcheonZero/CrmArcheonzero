@@ -92,6 +92,20 @@ namespace CrmArcheonzero.ViewModels
             try
             {
                 _userService.UpdateUser(EditableUser);
+
+                // ✅ Если мы редактируем сами себя — обновляем CurrentUser
+                if (CurrentUser != null && CurrentUser.Id == EditableUser.Id)
+                {
+                    CurrentUser.Username = EditableUser.Username;
+                    CurrentUser.FullName = EditableUser.FullName;
+                    CurrentUser.Email = EditableUser.Email;
+                    CurrentUser.Role = EditableUser.Role;
+                    // Если нужно — обновить и другие поля
+
+                    // Уведомляем UI, что CurrentUser изменился
+                    OnPropertyChanged(nameof(CurrentUser));
+                }
+
                 LoadUsers();
                 CloseUserEditForm();
                 SelectedUser = null;
@@ -165,6 +179,23 @@ namespace CrmArcheonzero.ViewModels
         private bool CanSaveUser() => EditableUser != null && EditableUser.Id != 0;
         private bool CanDeleteUser() => SelectedUser != null && IsAdmin;
         private bool CanClearUser() => IsUserEditMode;
-        
+
+        private void ToggleUserActive(object? parameter)
+        {
+            if (parameter is not User user) return;
+
+            try
+            {
+                user.IsActive = !user.IsActive;
+                _userService.UpdateUser(user);
+                LoadUsers();
+                LoggerService.LogAction("ToggleUserActive", $"Пользователь {user.Username} стал {(user.IsActive ? "активен" : "неактивен")}");
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError(ex, "ToggleUserActive");
+                MessageBox.Show($"Ошибка при изменении статуса: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }

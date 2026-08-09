@@ -16,14 +16,7 @@
                              IsChecked="{Binding IsBrightTheme}" Margin="0,3"/>
             </StackPanel>
 
-            <TextBlock Text="База данных по умолчанию" FontWeight="SemiBold" Foreground="{DynamicResource AccentDeepBlue}" FontSize="16" Margin="0,0,0,10"/>
-            <ComboBox ItemsSource="{Binding AvailableProviders}" 
-                      SelectedItem="{Binding DefaultProvider}"
-                      Width="200" Margin="0,0,0,20"/>
 
-            <TextBlock Text="Настройки экспорта" FontWeight="SemiBold" Foreground="{DynamicResource AccentDeepBlue}" FontSize="16" Margin="0,0,0,10"/>
-            <CheckBox Content="Автоматически открывать папку после экспорта" 
-                      IsChecked="{Binding AutoOpenExportFolder}" Foreground="{DynamicResource AccentDeepBlue}" Margin="0,3"/>
         </StackPanel>
     </Grid>
 </UserControl>

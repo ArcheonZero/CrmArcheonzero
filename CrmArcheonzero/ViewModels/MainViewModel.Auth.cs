@@ -45,26 +45,37 @@ namespace CrmArcheonzero.ViewModels
         }
 
         private void Logout()
-{
-    if (HasUnsavedChanges)
-    {
-        var result = MessageBox.Show("Есть несохранённые изменения. Выйти?",
-            "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
-        if (result == MessageBoxResult.No) return;
-    }
+        {
+            if (HasUnsavedChanges)
+            {
+                var result = MessageBox.Show("Есть несохранённые изменения. Выйти?",
+                    "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.No) return;
+            }
+            // ✅ Обнуление дашборда
+            ChartSeries = null;
+            ActiveCount = 0;
+            LeadCount = 0;
+            InactiveCount = 0;
 
-    _userService.Logout();
-    IsAuthenticated = false;
-    IsEditMode = false;
-    HasUnsavedChanges = false;
-    Clients = new ObservableCollection<Client>();
-    ChatMessages = new ObservableCollection<ChatMessage>(); // <-- ДОБАВИТЬ
+            // Оповещение UI об изменениях
+            OnPropertyChanged(nameof(ChartSeries));
+            OnPropertyChanged(nameof(ActiveCount));
+            OnPropertyChanged(nameof(LeadCount));
+            OnPropertyChanged(nameof(InactiveCount));
 
-    UpdateVisibility();
-    RefreshCommands();
+            _userService.Logout();
+            IsAuthenticated = false;
+            IsEditMode = false;
+            HasUnsavedChanges = false;
+            Clients = new ObservableCollection<Client>();
+            ChatMessages = new ObservableCollection<ChatMessage>(); // <-- ДОБАВИТЬ
 
-    MessageBox.Show("Вы вышли из системы", "Выход", MessageBoxButton.OK, MessageBoxImage.Information);
-}
+            UpdateVisibility();
+            RefreshCommands();
+            SelectedTabIndex = 0;
+            MessageBox.Show("Вы вышли из системы", "Выход", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
 
         private void ShowChangePassword()
         {

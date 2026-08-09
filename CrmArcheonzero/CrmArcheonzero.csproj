@@ -66,7 +66,6 @@
 		<PackageReference Include="System.Private.Uri" Version="4.3.0" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.0" />
 		<PackageReference Include="Telegram.Bot" Version="19.0.0" />
-		<PackageReference Include="Google.Apis.Drive.v3" Version="1.68.0.3512" />
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="System.Text.Json" Version="7.0.0" />
 		<PackageReference Include="Wordroller" Version="1.2.0" />

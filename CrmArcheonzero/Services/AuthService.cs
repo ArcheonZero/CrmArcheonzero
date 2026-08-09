@@ -117,6 +117,14 @@ namespace CrmArcheonzero.Services
                 LoggerService.LogAction("Выход", $"Пользователь {_currentUser.Username} вышел из системы");
             }
             _currentUser = null;
+
+            // ✅ Сбрасываем контекст
+            if (_context != null)
+            {
+                _context = null;
+            }
+
+            // ✅ Сбрасываем фабрику контекстов (если она статическая)
             DbContextFactory.ResetDbContext();
         }
 
@@ -138,33 +146,36 @@ namespace CrmArcheonzero.Services
             return _currentUser.Role == requiredRole;
         }
 
-        public bool CreateUser(string username, string password, string email, string fullName, string role = "User")
+        public bool CreateUser(string username, string fullName, string password, string email,  string role = "User")
         {
-            if (_context == null)
+            try
+            {
+
+                var context = DbContextFactory.GetDbContext();
+                if (context == null)
             {
                 MessageBox.Show("Сначала подключитесь к базе данных!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
-            try
-            {
-                var dbContext = (DbContext)_context;
+
+                var dbContext = (DbContext)context;
                 if (dbContext.Set<User>().Any(u => u.Username == username))
                     return false;
 
                 var user = new User
                 {
                     Username = username,
+                    FullName = fullName,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
                     Email = email,
-                    FullName = fullName,
                     Role = role,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
 
                 dbContext.Set<User>().Add(user);
-                _context.SaveChanges();
+                context.SaveChanges();
 
                 LoggerService.LogAction("Создание пользователя", $"Пользователь {username} создан с ролью {role}");
                 return true;
@@ -206,24 +217,46 @@ namespace CrmArcheonzero.Services
             }
         }
 
-        public bool UpdateProfile(int userId, string newFullName, string newEmail)
+        public bool UpdateProfile(int userId, string newUsername, string newFullName, string newEmail)
         {
-            if (_context == null)
-            {
-                MessageBox.Show("Сначала подключитесь к базе данных!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return false;
-            }
-
             try
             {
-                var user = ((DbContext)_context).Set<User>().Find(userId);
-                if (user == null) return false;
+                var context = DbContextFactory.GetDbContext();
+                if (context == null)
+                {
+                    MessageBox.Show("Сначала подключитесь к базе данных!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
 
+                var dbContext = (DbContext)context;
+                var user = dbContext.Set<User>().Find(userId);
+                if (user == null)
+                {
+                    MessageBox.Show("Пользователь не найден!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
+
+                // Проверяем, что новый Username не занят другим пользователем
+                if (dbContext.Set<User>().Any(u => u.Username == newUsername && u.Id != userId))
+                {
+                    MessageBox.Show($"Имя пользователя '{newUsername}' уже занято!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
+
+                user.Username = newUsername;
                 user.FullName = newFullName;
                 user.Email = newEmail;
-                _context.SaveChanges();
+                context.SaveChanges();
 
-                LoggerService.LogAction("Обновление профиля", $"Пользователь {user.Username} обновил имя/email");
+                // Обновляем текущего пользователя в AuthService, если это он
+                if (_currentUser != null && _currentUser.Id == userId)
+                {
+                    _currentUser.Username = newUsername;
+                    _currentUser.FullName = newFullName;
+                    _currentUser.Email = newEmail;
+                }
+
+                LoggerService.LogAction("Обновление профиля", $"Пользователь {user.Username} обновил профиль");
                 return true;
             }
             catch (Exception ex)

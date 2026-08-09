@@ -1,9 +1,10 @@
+using CrmArcheonzero.Services;
+using CrmArcheonzero.ViewModels;
+using CrmArcheonzero.Views;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using CrmArcheonzero.Services;
-using CrmArcheonzero.Views;
 
 namespace CrmArcheonzero
 {
@@ -143,7 +144,14 @@ namespace CrmArcheonzero
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
+        private void NewUserPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            var passwordBox = sender as PasswordBox;
+            if (passwordBox != null && DataContext is MainViewModel viewModel)
+            {
+                viewModel.EditableUser.NewPassword = passwordBox.Password;
+            }
+        }
         private bool IsValidEmail(string email)
         {
             try

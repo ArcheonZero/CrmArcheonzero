@@ -44,6 +44,7 @@ namespace CrmArcheonzero.ViewModels
         //export - magicodes
         public ICommand ExportCommand { get; set; }
 
+        public ICommand ToggleUserActiveCommand { get; private set; }
         public ICommand ExportCardCommand { get; private set; }
         private RelayCommand? _importCommand;
         public ICommand ImportCommand => _importCommand ??= new RelayCommand(ImportFromExcel, () => IsAuthenticated);
@@ -88,6 +89,7 @@ namespace CrmArcheonzero.ViewModels
 
             ExportCommand = new RelayCommand(Export, () => IsAuthenticated);
             ExportCardCommand = new RelayCommand<string>(ExportCard, CanExportCard);
+            ToggleUserActiveCommand = new RelayParameterCommand(ToggleUserActive);
             LoggerService.LogAction("InitializeCommands", "Основные команды инициализированы");
             InitializeChatCommands();
             LoggerService.LogAction("InitializeCommands", "Конец");
