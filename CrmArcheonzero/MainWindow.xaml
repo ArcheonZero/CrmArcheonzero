@@ -43,11 +43,12 @@
 
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="19*"/>
+                                <ColumnDefinition Width="71*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Grid.ColumnSpan="2">
                                 <TextBlock Text="🔍 Поиск:" VerticalAlignment="Center" Margin="5" Foreground="{DynamicResource TextMuted}"/>
                                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
                                          Width="200" Margin="5" Padding="5"/>
@@ -57,7 +58,7 @@
                                           Width="120" Margin="5"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="639,0,0,0">
                                 <Button Content="🔄 Обновить" Command="{Binding RefreshCommand}" 
                                         Margin="5" Padding="12,6" Style="{DynamicResource AccentButton}"/>
                                 <Button Content="➕ Новый клиент" Command="{Binding AddCommand}" 
@@ -102,25 +103,25 @@
                             <Border Background="#E3F2FD" Padding="20" Margin="5" CornerRadius="6" Width="150">
                                 <StackPanel>
                                     <TextBlock Text="Всего" FontSize="14" Foreground="#666"/>
-                                    <TextBlock Text="{Binding Clients.Count, FallbackValue=0}" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource AccentDeepBlue}"/>
+                                    <TextBlock Text="{Binding Clients.Count, FallbackValue=0}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource AccentDeepBlue}"/>
                                 </StackPanel>
                             </Border>
                             <Border Background="#C8E6C9" Padding="20" Margin="5" CornerRadius="6" Width="150">
                                 <StackPanel>
                                     <TextBlock Text="Active" FontSize="14" Foreground="#666"/>
-                                    <TextBlock Text="0" FontSize="28" FontWeight="Bold" Foreground="#2E7D32"/>
+                                    <TextBlock Text="{Binding ActiveCount, FallbackValue=0}" FontSize="28" FontWeight="Bold" Foreground="#2E7D32"/>
                                 </StackPanel>
                             </Border>
                             <Border Background="#FFE0B2" Padding="20" Margin="5" CornerRadius="6" Width="150">
                                 <StackPanel>
                                     <TextBlock Text="Lead" FontSize="14" Foreground="#666"/>
-                                    <TextBlock Text="0" FontSize="28" FontWeight="Bold" Foreground="#E65100"/>
+                                    <TextBlock Text="{Binding LeadCount, FallbackValue=0}" FontSize="28" FontWeight="Bold" Foreground="#E65100"/>
                                 </StackPanel>
                             </Border>
                             <Border Background="#FFCDD2" Padding="20" Margin="5" CornerRadius="6" Width="150">
                                 <StackPanel>
                                     <TextBlock Text="Inactive" FontSize="14" Foreground="#666"/>
-                                    <TextBlock Text="0" FontSize="28" FontWeight="Bold" Foreground="#C62828"/>
+                                    <TextBlock Text="{Binding InactiveCount, FallbackValue=0}" FontSize="28" FontWeight="Bold" Foreground="#C62828"/>
                                 </StackPanel>
                             </Border>
                         </WrapPanel>
@@ -158,7 +159,7 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" 
-                               Text="{Binding SelectedClient.Name, StringFormat='Детали клиента: {0}'}" 
+                               Text="{Binding EditableClient.Name, StringFormat='Детали клиента: {0}'}" 
                                FontSize="18" FontWeight="SemiBold" 
                                Foreground="{DynamicResource AccentDeepBlue}"
                                Margin="0,0,0,10" Grid.ColumnSpan="5"/>
@@ -522,8 +523,7 @@
                         <Button Content="♻️ Восстановить" Command="{Binding RestoreClientCommand}" 
                                 Margin="5" Padding="15,8" Style="{DynamicResource AccentButton}"/>
                         <Button Content="🗑 Удалить навсегда" Command="{Binding PermanentDeleteClientCommand}" 
-                                Margin="5" Padding="15,8" Style="{DynamicResource DangerButton}"
-                                Visibility="{Binding IsSuperManager, Converter={StaticResource BoolToVisibility}}"/>
+                                Margin="5" Padding="15,8" Style="{DynamicResource DangerButton}"/>
                     </StackPanel>
                 </Grid>
 

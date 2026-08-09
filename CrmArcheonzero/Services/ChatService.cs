@@ -25,7 +25,6 @@ namespace CrmArcheonzero.Services
                 Message = message,
                 SentAt = DateTime.UtcNow
             };
-
             _context.ChatMessages.Add(msg);
             _context.SaveChanges();
         }

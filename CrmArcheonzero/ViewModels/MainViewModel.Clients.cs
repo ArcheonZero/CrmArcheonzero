@@ -35,7 +35,7 @@ namespace CrmArcheonzero.ViewModels
                 {
                     var list = await _clientService.GetAllAsync(false);
                     Clients = new ObservableCollection<Client>(list);
-                    ApplyFilter(); // <-- добавить, если ещё нет
+                    ApplyFilter();
                     UpdateChart();
                     LoadUsers();
                 }
@@ -158,6 +158,7 @@ namespace CrmArcheonzero.ViewModels
 
         private void OpenEditForm(Client? client = null)
         {
+            LoggerService.LogAction("OpenEditForm", $"client is null: {client == null}");
             if (!IsAuthenticated) return;
 
             if (HasUnsavedChanges)
@@ -169,6 +170,7 @@ namespace CrmArcheonzero.ViewModels
 
             if (client == null)
             {
+                SelectedClient = null;
                 EditableClient = new Client
                 {
                     CreatedAt = DateTime.UtcNow,
@@ -211,6 +213,7 @@ namespace CrmArcheonzero.ViewModels
             HasUnsavedChanges = false;
             SelectedTabIndex = 2;
             OnPropertyChanged(nameof(EditableClient));
+
             (SaveCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (DeleteCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (ClearCommand as RelayCommand)?.RaiseCanExecuteChanged();
@@ -416,9 +419,9 @@ namespace CrmArcheonzero.ViewModels
                 MessageBox.Show("Вы не можете окончательно удалить клиента, привязанного к администратору или суперменеджеру.");
                 return;
             }
-            if (!IsSuperManager)
+            if (!IsAdmin && !IsSuperManager)
             {
-                MessageBox.Show("Только SuperManager или Admin могут окончательно удалять клиентов.", "Доступ запрещён", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Только Admin или SuperManager могут окончательно удалять клиентов.");
                 return;
             }
 
@@ -455,8 +458,13 @@ namespace CrmArcheonzero.ViewModels
             }
 
             EditableClient = new Client();
+            SelectedClient = null;
+            Interactions = new ObservableCollection<Interaction>();
+            Tasks = new ObservableCollection<ClientTask>();
+            Notes = new ObservableCollection<Note>();
+            IsEditMode = false;
             HasUnsavedChanges = false;
-
+            AddClient();
             (SaveCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (DeleteCommand as RelayCommand)?.RaiseCanExecuteChanged();
             (ClearCommand as RelayCommand)?.RaiseCanExecuteChanged();

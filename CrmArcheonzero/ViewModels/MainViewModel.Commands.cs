@@ -79,7 +79,7 @@ namespace CrmArcheonzero.ViewModels
             ShowUserManagementCommand = new RelayCommand(ShowUserManagement, () => IsAuthenticated && IsAdmin);
 
             ReassignClientCommand = new RelayCommand(ReassignClient, () => IsAuthenticated && SelectedClient != null);
-            PermanentDeleteClientCommand = new RelayCommand(PermanentDeleteClient, () => IsAuthenticated && IsSuperManager && SelectedDeletedClient != null && SelectedDeletedClient.IsDeleted);
+            PermanentDeleteClientCommand = new RelayCommand(PermanentDeleteClient, () => IsAuthenticated && (IsAdmin || IsSuperManager) && SelectedDeletedClient != null && SelectedDeletedClient.IsDeleted);
             OpenRecycleBinCommand = new RelayCommand(OpenRecycleBin, () => IsAuthenticated);
             RestoreClientCommand = new RelayCommand(RestoreClient, CanRestoreClient);
             SaveUserCommand = new RelayCommand(SaveUser, CanSaveUser);

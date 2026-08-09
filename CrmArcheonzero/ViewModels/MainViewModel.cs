@@ -57,7 +57,6 @@ namespace CrmArcheonzero.ViewModels
         // ============================================================
         // СВОЙСТВА
         // ============================================================
-
         public ObservableCollection<Client> DeletedClients
         {
             get => _deletedClients;
@@ -208,9 +207,16 @@ namespace CrmArcheonzero.ViewModels
 
                 if (value == 2 && SelectedClient == null && Clients != null && Clients.Any())
                 {
-                    var firstClient = Clients.First();
-                    SelectedClient = firstClient;
-                    OpenEditForm(firstClient);
+                    OpenEditForm(null);
+                    IsEditMode = true;
+                }
+                if (value == 5) // или индекс вкладки «Корзина»
+                {
+                    LoadDeletedClients();
+                }
+                if (value == 6) // или индекс вкладки чата
+                {
+                    LoadChatMessages();
                 }
             }
         }

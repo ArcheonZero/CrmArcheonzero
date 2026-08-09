@@ -60,7 +60,7 @@ namespace CrmArcheonzero.ViewModels
             catch (Exception ex)
             {
                 LoggerService.LogError(ex, "LoadUsers");
-                MessageBox.Show($"Îøèáêà çàãðóçêè ïîëüçîâàòåëåé: {ex.Message}", "Îøèáêà", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"ÐžÑˆÐ¸Ð±ÐºÐ° Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ¸ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÐµÐ¹: {ex.Message}", "ÐžÑˆÐ¸Ð±ÐºÐ°", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -95,12 +95,12 @@ namespace CrmArcheonzero.ViewModels
                 LoadUsers();
                 CloseUserEditForm();
                 SelectedUser = null;
-                MessageBox.Show("Ïîëüçîâàòåëü îáíîâë¸í", "Óñïåõ", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒ Ð¾Ð±Ð½Ð¾Ð²Ð»Ñ‘Ð½", "Ð£ÑÐ¿ÐµÑ…", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 LoggerService.LogError(ex, "SaveUser");
-                MessageBox.Show($"Îøèáêà ñîõðàíåíèÿ: {ex.Message}", "Îøèáêà", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"ÐžÑˆÐ¸Ð±ÐºÐ° ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ: {ex.Message}", "ÐžÑˆÐ¸Ð±ÐºÐ°", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -111,25 +111,25 @@ namespace CrmArcheonzero.ViewModels
             var currentUser = _userService.GetCurrentUser();
             if (currentUser == null)
             {
-                MessageBox.Show("Íå óäàëîñü îïðåäåëèòü òåêóùåãî ïîëüçîâàòåëÿ.", "Îøèáêà", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»Ð¸Ñ‚ÑŒ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ.", "ÐžÑˆÐ¸Ð±ÐºÐ°", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             if (!IsAdmin)
             {
-                MessageBox.Show("Òîëüêî àäìèíèñòðàòîð ìîæåò óäàëÿòü ïîëüçîâàòåëåé.", "Äîñòóï çàïðåù¸í", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Ð¢Ð¾Ð»ÑŒÐºÐ¾ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€ Ð¼Ð¾Ð¶ÐµÑ‚ ÑƒÐ´Ð°Ð»ÑÑ‚ÑŒ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÐµÐ¹.", "Ð”Ð¾ÑÑ‚ÑƒÐ¿ Ð·Ð°Ð¿Ñ€ÐµÑ‰Ñ‘Ð½", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             if (SelectedUser.Id == _userService.GetCurrentUser().Id)
             {
-                MessageBox.Show("Âû íå ìîæåòå óäàëèòü ñàìîãî ñåáÿ.", "Äîñòóï çàïðåù¸í", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Ð’Ñ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ ÑÐ°Ð¼Ð¾Ð³Ð¾ ÑÐµÐ±Ñ.", "Ð”Ð¾ÑÑ‚ÑƒÐ¿ Ð·Ð°Ð¿Ñ€ÐµÑ‰Ñ‘Ð½", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            var result = MessageBox.Show($"Óäàëèòü ïîëüçîâàòåëÿ {SelectedUser.Username}?",
-                "Ïîäòâåðæäåíèå", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show($"Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ {SelectedUser.Username}?",
+                "ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (SelectedUser.Role == "Admin")
             {
-                MessageBox.Show("Âû íå ìîæåòå óäàëèòü äðóãîãî àäìèíèñòðàòîðà.", "Äîñòóï çàïðåù¸í", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Ð’Ñ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÑ‚Ðµ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ Ð´Ñ€ÑƒÐ³Ð¾Ð³Ð¾ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð°.", "Ð”Ð¾ÑÑ‚ÑƒÐ¿ Ð·Ð°Ð¿Ñ€ÐµÑ‰Ñ‘Ð½", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             if (result == MessageBoxResult.Yes)
@@ -140,12 +140,12 @@ namespace CrmArcheonzero.ViewModels
                     LoadUsers();
                     CloseUserEditForm();
                     SelectedUser = null;
-                    MessageBox.Show("Ïîëüçîâàòåëü óäàë¸í", "Óñïåõ", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒ ÑƒÐ´Ð°Ð»Ñ‘Ð½", "Ð£ÑÐ¿ÐµÑ…", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
                     LoggerService.LogError(ex, "DeleteUser");
-                    MessageBox.Show($"Îøèáêà óäàëåíèÿ: {ex.Message}", "Îøèáêà", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"ÐžÑˆÐ¸Ð±ÐºÐ° ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ñ: {ex.Message}", "ÐžÑˆÐ¸Ð±ÐºÐ°", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -154,7 +154,7 @@ namespace CrmArcheonzero.ViewModels
         {
             if (HasUnsavedChanges)
             {
-                var result = MessageBox.Show("Åñòü íåñîõðàí¸ííûå èçìåíåíèÿ. Î÷èñòèòü ôîðìó?", "Ïîäòâåðæäåíèå", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = MessageBox.Show("Ð•ÑÑ‚ÑŒ Ð½ÐµÑÐ¾Ñ…Ñ€Ð°Ð½Ñ‘Ð½Ð½Ñ‹Ðµ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ. ÐžÑ‡Ð¸ÑÑ‚Ð¸Ñ‚ÑŒ Ñ„Ð¾Ñ€Ð¼Ñƒ?", "ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.No) return;
             }
 
@@ -165,5 +165,6 @@ namespace CrmArcheonzero.ViewModels
         private bool CanSaveUser() => EditableUser != null && EditableUser.Id != 0;
         private bool CanDeleteUser() => SelectedUser != null && IsAdmin;
         private bool CanClearUser() => IsUserEditMode;
+        
     }
 }
