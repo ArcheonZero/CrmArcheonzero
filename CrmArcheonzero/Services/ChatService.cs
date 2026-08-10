@@ -16,7 +16,7 @@ namespace CrmArcheonzero.Services
             _context = DbContextFactory.GetDbContext();
         }
 
-        public void SendMessage(int userId, string userName, string message)
+        public void SendMessage(int userId, string message)
         {
             var msg = new ChatMessage
             {
