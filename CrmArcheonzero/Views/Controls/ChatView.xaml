@@ -18,7 +18,7 @@
                         <TextBlock FontWeight="Bold">
                             <Run Text="{Binding UserName}" />
                             <Run Text=" — " />
-                            <Run Text="{Binding SentAt, StringFormat=HH:mm}" Foreground="Gray"/>
+                            <Run Text="{Binding SentAt, StringFormat=dd.MM.yyyy HH:mm}" Foreground="Gray"/>
                         </TextBlock>
                         <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
                     </StackPanel>

@@ -14,8 +14,24 @@ namespace CrmArcheonzero.Data
         private static string _selectedProvider;
         private static string _selectedConnectionString;
 
-        public static void SetProvider(string provider, string connectionString)
+        public static void SetProvider(string provider, string? connectionString = null)
         {
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                // Если строка не передана — берём из appsettings.json
+                var config = new ConfigurationBuilder()
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .Build();
+
+                connectionString = config[$"Database:Providers:{provider}:ConnectionString"];
+
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException($"Строка подключения для провайдера {provider} не найдена в appsettings.json");
+                }
+            }
+
             // Проверяем, существует ли файл БД для SQLite
             if (provider.ToLower() == "sqlite" && !string.IsNullOrEmpty(connectionString))
             {
@@ -29,13 +45,17 @@ namespace CrmArcheonzero.Data
                 }
             }
 
+            // Сохраняем провайдер
             _selectedProvider = provider;
             _selectedConnectionString = connectionString;
-            _currentDbContext = null;
         }
-
+        public static string GetProvider()
+        {
+            return _selectedProvider ?? "Sqlite";
+        }
         public static IDbContext GetDbContext()
         {
+            
             if (_currentDbContext != null)
                 return _currentDbContext;
 

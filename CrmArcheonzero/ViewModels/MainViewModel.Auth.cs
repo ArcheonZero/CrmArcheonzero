@@ -1,8 +1,10 @@
+using CrmArcheonzero.Data;
+using CrmArcheonzero.Models;
+using CrmArcheonzero.Services;
+using CrmArcheonzero.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
-using CrmArcheonzero.Models;
-using CrmArcheonzero.Views;
 
 
 namespace CrmArcheonzero.ViewModels
@@ -52,24 +54,30 @@ namespace CrmArcheonzero.ViewModels
                     "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.No) return;
             }
+            ResetServices();
+            _chatService = new ChatService();
             // ✅ Обнуление дашборда
             ChartSeries = null;
             ActiveCount = 0;
             LeadCount = 0;
             InactiveCount = 0;
 
-            // Оповещение UI об изменениях
             OnPropertyChanged(nameof(ChartSeries));
             OnPropertyChanged(nameof(ActiveCount));
             OnPropertyChanged(nameof(LeadCount));
             OnPropertyChanged(nameof(InactiveCount));
 
             _userService.Logout();
+
+            // ✅ СБРАСЫВАЕМ ВЫБОР БАЗЫ ДАННЫХ
+            DbContextFactory.SetProvider("Sqlite", null);
+            DbContextFactory.ResetDbContext();
+
             IsAuthenticated = false;
             IsEditMode = false;
             HasUnsavedChanges = false;
             Clients = new ObservableCollection<Client>();
-            ChatMessages = new ObservableCollection<ChatMessage>(); // <-- ДОБАВИТЬ
+            ChatMessages = new ObservableCollection<ChatMessage>();
 
             UpdateVisibility();
             RefreshCommands();

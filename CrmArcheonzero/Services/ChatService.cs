@@ -16,7 +16,7 @@ namespace CrmArcheonzero.Services
             _context = DbContextFactory.GetDbContext();
         }
 
-        public void SendMessage(int userId, string message)
+        public void SendMessage(int userId, string userName, string message)
         {
             var msg = new ChatMessage
             {
@@ -32,6 +32,7 @@ namespace CrmArcheonzero.Services
         public List<ChatMessage> GetMessages(int count = 50)
         {
             return ((DbContext)_context).Set<ChatMessage>()
+                .Include(m => m.User)
                 .OrderByDescending(m => m.SentAt)
                 .Take(count)
                 .OrderBy(m => m.SentAt)

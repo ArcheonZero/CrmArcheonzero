@@ -16,7 +16,7 @@ namespace CrmArcheonzero.ViewModels
         private ObservableCollection<ChatMessage> _chatMessages = new();
         private string _newChatMessage = "";
         private ChatService? _chatService;
-public ChatService ChatService
+        public ChatService ChatService
 {
     get
     {
@@ -49,6 +49,7 @@ public ChatService ChatService
 
         private void LoadChatMessages()
         {
+            _chatService = new ChatService();
             if (!IsAuthenticated) return;
 
             try

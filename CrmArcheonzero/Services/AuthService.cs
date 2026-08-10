@@ -112,6 +112,7 @@ namespace CrmArcheonzero.Services
 
         public void Logout()
         {
+            
             if (_currentUser != null)
             {
                 LoggerService.LogAction("Выход", $"Пользователь {_currentUser.Username} вышел из системы");

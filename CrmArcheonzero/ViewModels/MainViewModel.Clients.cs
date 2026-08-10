@@ -1,3 +1,4 @@
+using CrmArcheonzero.Data;
 using CrmArcheonzero.Models;
 using CrmArcheonzero.Services;
 using DocumentFormat.OpenXml.ExtendedProperties;
@@ -21,6 +22,7 @@ namespace CrmArcheonzero.ViewModels
 
         public async Task LoadClientsAsync()
         {
+            Console.WriteLine($"[LoadClientsAsync] Текущий провайдер: {DbContextFactory.GetProvider()}");
             if (!IsAdmin && !IsSuperManager && !IsManager)
             {
                 var list = await _clientService.GetAllAsync(false);

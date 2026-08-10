@@ -19,9 +19,10 @@ namespace CrmArcheonzero.ViewModels
         // ============================================================
         // СЕРВИСЫ
         // ============================================================
-        private readonly ClientService _clientService;
-        private readonly TaskService _taskService;
-        private readonly UserService _userService;
+        private ClientService _clientService;
+        private TaskService _taskService;
+        private UserService _userService;
+
         private readonly EmailService? _emailService;
         private readonly TelegramService? _telegramService;
         private readonly CloudStorageService? _cloudStorage;
@@ -57,6 +58,12 @@ namespace CrmArcheonzero.ViewModels
         // ============================================================
         // СВОЙСТВА
         // ============================================================
+        public void ResetServices()
+        {
+            _clientService = new ClientService();
+            _taskService = new TaskService();
+            _userService = new UserService();
+        }
         public ObservableCollection<Client> DeletedClients
         {
             get => _deletedClients;
