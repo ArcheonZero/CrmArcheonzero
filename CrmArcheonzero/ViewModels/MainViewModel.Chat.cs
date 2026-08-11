@@ -72,7 +72,7 @@ namespace CrmArcheonzero.ViewModels
 
             try
             {
-                ChatService.SendMessage(user.Id, user.FullName, NewChatMessage);
+                ChatService.SendMessage(user.Id, NewChatMessage);
                 NewChatMessage = "";
                 LoadChatMessages();
             }

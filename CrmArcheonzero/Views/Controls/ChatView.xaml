@@ -16,8 +16,14 @@
                 <DataTemplate>
                     <StackPanel Margin="0,5">
                         <TextBlock FontWeight="Bold">
-                            <Run Text="{Binding UserName}" />
-                            <Run Text=" — " />
+                            <Run Text="{Binding User.Username}"/>
+                            <Run Text=" "/>
+                            <Run Text="{Binding User.FullName}"/>
+                            <Run Text=" " />
+                            <Run Text="{Binding User.Email}"/>
+                            <Run Text="( Роль: " />
+                            <Run Text="{Binding User.Role}"/>
+                            <Run Text=") — " />
                             <Run Text="{Binding SentAt, StringFormat=dd.MM.yyyy HH:mm}" Foreground="Gray"/>
                         </TextBlock>
                         <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
